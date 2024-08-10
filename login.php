@@ -22,7 +22,7 @@ $password = $data->password ?? '';
 
 if (empty($username) || empty($password)) {
     http_response_code(400);
-    echo json_encode(["message" => "Username and password are required."]);
+    return json_encode(["message" => "Username and password are required."]);
     exit();
 }
 
@@ -55,12 +55,13 @@ try {
             "user" => [
                 "id" => $user['user_id'],
                 "username" => $user['username'],
-                "fullname" => $user['nom_complet']
+                "fullname" => $user['nom_complet'],
+                "user_type" => $user['user_type'],
             ]
         ]);
     } else {
         http_response_code(401);
-        echo json_encode(["message" => "Invalid username or password."]);
+        return json_encode(["message" => "Invalid username or password."]);
     }
 } catch (PDOException $e) {
     http_response_code(500);

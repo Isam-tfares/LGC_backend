@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit371911e637bc1ac95a849ae4f20785dd
+class ComposerStaticInitf5001ae80426830deb95e9c56b810544
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -13,6 +13,10 @@ class ComposerStaticInit371911e637bc1ac95a849ae4f20785dd
     );
 
     public static $prefixLengthsPsr4 = array (
+        'Z' => 
+        array (
+            'ZipStream\\' => 10,
+        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Php80\\' => 23,
@@ -21,7 +25,15 @@ class ComposerStaticInit371911e637bc1ac95a849ae4f20785dd
         ),
         'P' => 
         array (
+            'Psr\\SimpleCache\\' => 16,
+            'Psr\\Http\\Message\\' => 17,
+            'Psr\\Http\\Client\\' => 16,
             'PhpOption\\' => 10,
+            'PhpOffice\\PhpSpreadsheet\\' => 25,
+        ),
+        'M' => 
+        array (
+            'Matrix\\' => 7,
         ),
         'G' => 
         array (
@@ -35,9 +47,17 @@ class ComposerStaticInit371911e637bc1ac95a849ae4f20785dd
         array (
             'Dotenv\\' => 7,
         ),
+        'C' => 
+        array (
+            'Complex\\' => 8,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'ZipStream\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
+        ),
         'Symfony\\Polyfill\\Php80\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
@@ -50,9 +70,30 @@ class ComposerStaticInit371911e637bc1ac95a849ae4f20785dd
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
+        'Psr\\SimpleCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+        ),
+        'Psr\\Http\\Client\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-client/src',
+        ),
         'PhpOption\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
+        ),
+        'PhpOffice\\PhpSpreadsheet\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
+        ),
+        'Matrix\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
         ),
         'GrahamCampbell\\ResultType\\' => 
         array (
@@ -65,6 +106,10 @@ class ComposerStaticInit371911e637bc1ac95a849ae4f20785dd
         'Dotenv\\' => 
         array (
             0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
+        ),
+        'Complex\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
         ),
     );
 
@@ -80,9 +125,9 @@ class ComposerStaticInit371911e637bc1ac95a849ae4f20785dd
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit371911e637bc1ac95a849ae4f20785dd::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit371911e637bc1ac95a849ae4f20785dd::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit371911e637bc1ac95a849ae4f20785dd::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitf5001ae80426830deb95e9c56b810544::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitf5001ae80426830deb95e9c56b810544::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitf5001ae80426830deb95e9c56b810544::$classMap;
 
         }, null, ClassLoader::class);
     }
