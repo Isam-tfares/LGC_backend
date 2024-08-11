@@ -16,7 +16,7 @@ class Database
 
         try {
             $hf_dsn = sprintf(
-                "odbc:DRIVER={HFSQL};Server Name=%s;Server Port=%s;Database=%s;UID=%s;PWD=%s;",
+                "odbc:DRIVER={HFSQL};Server Name=%s;Server Port=%s;Database=%s;UID=%s;PWD=%s;CHARSET=UTF8;",
                 $hf_hostname,
                 $hf_port,
                 $hf_database,
@@ -44,5 +44,14 @@ class Database
     public function getConnection()
     {
         return $this->connection;
+    }
+    public static function encode_utf8($res)
+    {
+        foreach ($res as &$row) {
+            foreach ($row as &$value) {
+                $value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+            }
+        }
+        return $res;
     }
 }

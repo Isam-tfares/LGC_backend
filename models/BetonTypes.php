@@ -12,6 +12,7 @@ class BetonTypes
             if (!$betonTypes) {
                 return -1;
             }
+            $betonTypes = Database::encode_utf8($betonTypes);
             return $betonTypes;
         } catch (PDOException $e) {
             http_response_code(500);

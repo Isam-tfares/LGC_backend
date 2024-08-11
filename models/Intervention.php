@@ -5,18 +5,25 @@ class Intervention
     static public function getAll($fromDate, $toDate)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Client.abr_client
-            FROM interventions
-            INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
-            INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
-            INNER JOIN Client ON Projet.client_id=Client.IDClient 
-            WHERE etat_confirmation=1");
-            // AND date_intervention BETWEEN TO_DATE(:fromDate, 'DD/MM/YYYY') AND TO_DATE(:toDate, 'DD/MM/YYYY')");
-            // $stm->bindParam(':fromDate', $fromDate);
-            // $stm->bindParam(':toDate', $toDate);
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
+                FROM interventions
+                INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
+                INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
+                INNER JOIN Client ON Projet.IDClient=Client.IDClient 
+                INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
+                WHERE interventions.etat_confirmation=1 
+                AND date_intervention Between " . $fromDate . " and " . $toDate);
             $stm->execute();
-            if ($stm->rowCount()) {
-                $res = $stm->fetchAll();
+
+            // Check if there were any errors during execution
+            if ($stm->errorCode() != '00000') {
+                $errorInfo = $stm->errorInfo();
+                throw new Exception("SQL Error: " . $errorInfo[2]);
+            }
+
+            if ($stm->rowCount() > 0) {
+                $res = $stm->fetchAll(PDO::FETCH_ASSOC); // Use FETCH_ASSOC to get an associative array
+                $res = Database::encode_utf8($res);
                 return $res;
             } else {
                 return -1;
@@ -29,19 +36,18 @@ class Intervention
     static public function getAllTechnicien($technicien_id, $date)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,
-            Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
             FROM interventions
             INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
-            INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet 
-            INNER JOIN Client ON Projet.client_id=Client.IDClient 
-            WHERE technicien_id=:id AND date_intervention=TO_DATE(:date_intervention, 'DD/MM/YYYY')
-            AND etat_confirmation=1");
-            $stm->bindParam(':id', $technicien_id);
-            $stm->bindParam(':date_intervention', $date);
+            INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
+            INNER JOIN Client ON Projet.IDClient=Client.IDClient
+            INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
+            WHERE technicien_id=:technicien_id AND date_intervention=" . $date);
+            $stm->bindParam(':technicien_id', $technicien_id);
             $stm->execute();
             if ($stm->rowCount()) {
                 $res = $stm->fetchAll();
+                $res = Database::encode_utf8($res);
                 return $res;
             } else {
                 return -1;
@@ -54,16 +60,18 @@ class Intervention
     static public function get($intervention_id)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Client.abr_client
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
             FROM interventions 
             INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel 
             INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet 
-            INNER JOIN Client ON Projet.client_id=Client.IDClient 
+            INNER JOIN Client ON Projet.IDClient=Client.IDClient 
+            INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
             WHERE intervention_id=:intervention_id");
             $stm->bindParam(':intervention_id', $intervention_id);
             $stm->execute();
             if ($stm->rowCount()) {
                 $res = $stm->fetch();
+                $res = Database::encode_utf8([$res])[0];
                 return $res;
             } else {
                 return -1;
@@ -73,17 +81,18 @@ class Intervention
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);
         }
     }
-    static public function insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by)
+    static public function insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase)
     {
         try {
             $stm = Database::getInstance()->getConnection()->prepare("INSERT INTO interventions 
-            (technicien_id,projet_id,date_intervention,etat_confirmation,cree_par,date_creation)
-            VALUES (:technicien_id,:projet_id,TO_DATE(:date_intervention, 'DD/MM/YYYY'),:etat_confirmation,:cree_par,NOW())");
+            (technicien_id,projet_id,date_intervention,etat_confirmation,cree_par,date_creation,IDPhase,status)
+            VALUES (:technicien_id,:projet_id,:date_intervention,:etat_confirmation,:cree_par,SYSDATE,:IDPhase,1)");
             $stm->bindParam(':technicien_id', $technicien_id);
             $stm->bindParam(':projet_id', $projet_id);
             $stm->bindParam(':date_intervention', $date_intervention);
             $stm->bindParam(':etat_confirmation', $etat);
             $stm->bindParam(':cree_par', $created_by);
+            $stm->bindParam(':IDPhase', $IDPhase);
             $stm->execute();
             if ($stm->rowCount()) {
                 return 1;
@@ -120,15 +129,19 @@ class Intervention
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);
         }
     }
-    static public function confirmate($intervention_id, $modifie_par)
+    static public function confirmate($intervention_id, $modifie_par, $technicien_id, $projet_id, $date_intervention, $IDPhase)
     {
         try {
             $stm = Database::getInstance()->getConnection()->prepare("UPDATE interventions 
-            SET etat_confirmation=1,
-            modifie_par=:modifie_par
+            SET etat_confirmation=1,technicien_id=:technicien_id,projet_id=:projet_id,
+            date_intervention=:date_intervention,IDPhase=:IDPhase,modifie_par=:modifie_par,date_modification=SYSDATE
             WHERE intervention_id=:intervention_id");
             $stm->bindParam(':intervention_id', $intervention_id);
             $stm->bindParam(':modifie_par', $modifie_par);
+            $stm->bindParam(':technicien_id', $technicien_id);
+            $stm->bindParam(':projet_id', $projet_id);
+            $stm->bindParam(':date_intervention', $date_intervention);
+            $stm->bindParam(':IDPhase', $IDPhase);
             $stm->execute();
             if ($stm->rowCount()) {
                 return 1;
@@ -182,19 +195,19 @@ class Intervention
     static public function getDemandesInterventions($fromDate, $toDate)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Client.abr_client
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
             FROM interventions
             INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
             INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
-            INNER JOIN Client ON Projet.client_id=Client.IDClient
-            WHERE date_intervention BETWEEN TO_DATE(:fromDate, 'DD/MM/YYYY') AND TO_DATE(:toDate, 'DD/MM/YYYY')
-            AND etat_confirmation=0
-            AND status=1");
-            $stm->bindParam(':fromDate', $fromDate);
-            $stm->bindParam(':toDate', $toDate);
+            INNER JOIN Client ON Projet.IDClient=Client.IDClient
+            INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
+            WHERE etat_confirmation=0
+            AND status=1
+            AND date_intervention BETWEEN " . $fromDate . " AND " . $toDate);
             $stm->execute();
             if ($stm->rowCount()) {
                 $res = $stm->fetchAll();
+                $res = Database::encode_utf8($res);
                 return $res;
             } else {
                 return -1;
@@ -204,15 +217,17 @@ class Intervention
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);
         }
     }
-    public static function rejectDemandeIntervention($intervention_id, $obs)
+    public static function rejectDemandeIntervention($intervention_id, $obs, $user_id)
     {
         try {
             $stm = Database::getInstance()->getConnection()->prepare("UPDATE interventions 
             SET status=0,obs=:obs,
-            date_modification=NOW()
+            date_modification=SYSDATE,
+            modifie_par=:modifie_par
             WHERE intervention_id=:intervention_id");
             $stm->bindParam(':intervention_id', $intervention_id);
             $stm->bindParam(':obs', $obs);
+            $stm->bindParam(':modifie_par', $user_id);
             $stm->execute();
             if ($stm->rowCount()) {
                 return 1;

@@ -9,6 +9,7 @@ class EchantillonNatures
             $stmt = $db->prepare("SELECT * FROM echantillonnatures");
             $stmt->execute();
             $echantillonNatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $echantillonNatures = Database::encode_utf8($echantillonNatures);
             if (!$echantillonNatures) {
                 return -1;
             }

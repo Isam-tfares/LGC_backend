@@ -9,6 +9,7 @@ class MotifsConges
             $stmt = $db->prepare("SELECT * FROM motifsconge");
             $stmt->execute();
             $motifsConges = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $motifsConges = Database::encode_utf8($motifsConges);
             if (!$motifsConges) {
                 return -1;
             }

@@ -1,2 +1,6 @@
 // fromDate toDate HFSQL
 // change Table users by Personnel
+// DB conges etat_demande change from BOLEAN tO INTEGER
+// intervention_id AUTOINCREMENT
+// test API get Demandes Conges, Conges Interface for technicien
+// all champs should be auto increment in tables

@@ -6,9 +6,10 @@ class Phase
     {
         try {
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT * FROM Phase");
+            $stmt = $db->prepare("SELECT IDPhase,libelle FROM Phase");
             $stmt->execute();
             $phases = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $phases = Database::encode_utf8($phases);
             if (!$phases) {
                 return -1;
             }

@@ -28,6 +28,7 @@ class User
             $stm->execute();
             if ($stm->rowCount()) {
                 $res = $stm->fetchAll();
+                $res = Database::encode_utf8($res);
                 return $res;
             } else {
                 return -1;

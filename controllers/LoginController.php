@@ -16,7 +16,7 @@ class LoginController
 
         if (empty($username) || empty($password)) {
             http_response_code(400);
-            return json_encode(["message" => "Username and password are required.", "error" => "invalid data"]);
+            echo json_encode(["message" => "Username and password are required.", "error" => "invalid data"]);
         }
         $user = User::userConn($username);
         if ($user && $password == $user['PASSWORD']) {
@@ -35,7 +35,7 @@ class LoginController
             $jwt = JWT::encode($token, $secret_key, $jwt_algorithm);
 
             http_response_code(200);
-            return json_encode([
+            echo json_encode([
                 "message" => "Login successful.",
                 "jwt" => $jwt,
                 "user" => [
@@ -47,7 +47,7 @@ class LoginController
             ]);
         } else {
             http_response_code(401);
-            return json_encode(["message" => "Invalid username or password."]);
+            echo json_encode(["message" => "Invalid username or password."]);
         }
     }
 }

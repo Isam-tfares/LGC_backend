@@ -5,10 +5,11 @@ class Projet
     public static function getAll()
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT * FROM Projet");
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT IDProjet,abr_projet,IDClient FROM Projet");
             $stm->execute();
             if ($stm->rowCount()) {
                 $res = $stm->fetchAll();
+                $res = Database::encode_utf8($res);
                 return $res;
             } else {
                 return -1;
@@ -26,6 +27,7 @@ class Projet
             $stm->execute();
             if ($stm->rowCount()) {
                 $res = $stm->fetchAll();
+                $res = Database::encode_utf8($res);
                 return $res;
             } else {
                 return -1;
