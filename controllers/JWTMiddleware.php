@@ -8,9 +8,9 @@ class JWTMiddleware
     public static function validateToken()
     {
         $headers = apache_request_headers();
-        if (!isset($headers['Authorization'])) {
+        if (!isset($headers['authorization'])) {
             http_response_code(401);
-            return ["message" => "Token is required."];
+            return ["message" => "Token is required. 1"];
         }
 
         $authHeader = $headers['Authorization'];
@@ -18,7 +18,7 @@ class JWTMiddleware
 
         if (!$token) {
             http_response_code(401);
-            return ["message" => "Token is required."];
+            return ["message" => "Token is required. 2"];
         }
 
         try {

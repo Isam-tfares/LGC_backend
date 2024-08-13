@@ -16,15 +16,21 @@ class LoginController
 
         if (empty($username) || empty($password)) {
             http_response_code(400);
-            echo json_encode(["message" => "Username and password are required.", "error" => "invalid data"]);
+            echo json_encode(["error" => "Username and password are required.", "error" => "invalid data"]);
+            return;
         }
         $user = User::userConn($username);
+        if (!isset($user['PASSWORD'])) {
+            http_response_code(401);
+            echo json_encode(["error" => "Invalid username or password."]);
+            return;
+        }
         if ($user && $password == $user['PASSWORD']) {
             $token = [
                 "iss" => "your_domain.com",
                 "aud" => "your_domain.com",
                 "iat" => time(),
-                "exp" => time() + 3600,
+                "exp" => time() + 14400,
                 "data" => [
                     "id" => $user['user_id'],
                     "username" => $user['username'],
@@ -47,7 +53,7 @@ class LoginController
             ]);
         } else {
             http_response_code(401);
-            echo json_encode(["message" => "Invalid username or password."]);
+            echo json_encode(["error" => "Invalid username or password."]);
         }
     }
 }

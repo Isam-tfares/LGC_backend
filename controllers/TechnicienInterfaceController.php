@@ -18,6 +18,11 @@ class TechnicienInterfaceController
     }
     public static function AddDemandeConge($user_id)
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(["message" => "Method not allowed."]);
+            return;
+        }
 
         $response = CongeController::demandeConge($user_id);
         http_response_code(200);
@@ -42,17 +47,85 @@ class TechnicienInterfaceController
         $clients = Client::getAll();
         $projects = Projet::getAll();
         $phases = Phase::get();
+        $techniciens = User::getTechniciens();
         $data = [
             "clients" => $clients,
             "phases" => $phases,
-            "projects" => $projects
+            "projects" => $projects,
+            "techniciens" => $techniciens,
         ];
         http_response_code(200);
         echo json_encode($data);
     }
     public static function addInterventionAction($user_id)
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(["message" => "Method not allowed."]);
+            return;
+        }
         $response = InterventionController::insertInterventionTechnicien($user_id);
+        http_response_code(200);
+        echo json_encode($response);
+    }
+    public static function annulateIntervention($user_id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(["message" => "Method not allowed."]);
+            return;
+        }
+        $response = InterventionController::annulerIntervention($user_id);
+        http_response_code(200);
+        echo json_encode($response);
+    }
+    public static function insertPV($user_id)
+    {
+        // Check if the request is a POST request
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(["message" => "Method not allowed."]);
+            return;
+        }
+        PVController::insertPv($user_id);
+    }
+    public static function getPV($user_id)
+    {
+        $pv = PVController::getPV($user_id);
+        http_response_code(200);
+        echo json_encode($pv);
+    }
+    public static function getPVs($user_id)
+    {
+        $pvs = PVController::getPVsTec($user_id);
+        http_response_code(200);
+        echo json_encode($pvs);
+    }
+
+
+    public static function DemandesInterventionsTec($user_id)
+    {
+        $interventions = InterventionController::DemandesInterventionsTec($user_id);
+        http_response_code(200);
+        echo json_encode($interventions);
+    }
+    public static function NewReceptionInterface()
+    {
+        $interventions = Phase_ObjectController::getNonReceivedInterventions();
+        $data = [
+            // data needed for the new reception interface
+        ];
+        http_response_code(200);
+        echo json_encode($data);
+    }
+    public static function NewReception($user_id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(["message" => "Method not allowed."]);
+            return;
+        }
+        $response = Phase_projetController::newReceptionTec($user_id);
         http_response_code(200);
         echo json_encode($response);
     }

@@ -2,5 +2,5 @@ Options All indexes
 RewriteEngine On 
 RewriteBase /LGC/
 RewriteRule ^([-a-zA-Z0-9]+)$ index.php?page=$1
-RewriteCond %{HTTP:Authorization} !=""
+RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

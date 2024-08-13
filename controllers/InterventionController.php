@@ -10,17 +10,11 @@ class InterventionController
         $toDate = $data['toDate'] ?? '';
         if (empty($fromDate) || empty($toDate)) {
             http_response_code(400);
-            echo json_encode(["message" => "fromDate and toDate are required.", "error" => "invalid data"]);
+            echo json_encode(["error" => "fromDate and toDate are required."]);
             return;
         }
 
         $interventions = Intervention::getAll($fromDate, $toDate);
-        if ($interventions == -1) {
-            http_response_code(404);
-            echo json_encode(["message" => "No interventions found."]);
-            return;
-        }
-
         return $interventions;
     }
     // parameters neccessary are technicien_id and date
@@ -33,12 +27,6 @@ class InterventionController
             $date = date('Ymd');
         }
         $interventions = Intervention::getAllTechnicien($technicien_id, $date);
-        if ($interventions == -1) {
-            http_response_code(404);
-            echo json_encode(["message" => "No interventions found."]);
-            return;
-        }
-
         return $interventions;
     }
     // parameters neccessary are intervention_id
@@ -55,21 +43,15 @@ class InterventionController
         }
 
         $intervention = Intervention::get($intervention_id);
-        if ($role != "chef" && $intervention['technicien_id'] != $user_id) {
+        if (isset($intervention['technicien_id']) && $role != "chef" && $intervention['technicien_id'] != $user_id) {
             http_response_code(401);
             echo json_encode(["message" => "Unauthorized"]);
             return;
         }
-        if ($intervention == -1) {
-            http_response_code(404);
-            echo json_encode(["message" => "No intervention found."]);
-            return;
-        }
-
         return $intervention;
     }
-    // parameters neccessary are technicien_id, projet_id, date_intervention, created_by
-    static public function insertInterventionChef()
+    // parameters neccessary are technicien_id, projet_id, date_intervention,IDPhase
+    static public function insertInterventionChef($user_id)
     {
         $data = json_decode(file_get_contents("php://input"));
         $technicien_id = $data->technicien_id ?? '';
@@ -77,7 +59,7 @@ class InterventionController
         $date_intervention = $data->date_intervention ?? '';
         $IDPhase = $data->IDPhase ?? '';
         $etat = 1;
-        $created_by = $data->created_by ?? '';
+        $created_by = $user_id;
         if (empty($technicien_id) || empty($projet_id) || empty($date_intervention) || empty($created_by)) {
             http_response_code(400);
             echo json_encode(["message" => "All fields are required.", "error" => "invalid data"]);
@@ -85,14 +67,9 @@ class InterventionController
         }
 
         $intervention = Intervention::insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase);
-        if ($intervention == -1) {
-            http_response_code(500);
-            echo json_encode(["message" => "Database error."]);
-            return;
-        }
-        return ["message" => "Intervention created successfully."];
+        return  $intervention;
     }
-    // parameters neccessary are technicien_id, projet_id, date_intervention, created_by
+    // parameters neccessary are  projet_id, date_intervention, IDPhase
     static public function insertInterventionTechnicien($technicien_id)
     {
         $data = json_decode(file_get_contents("php://input"));
@@ -106,17 +83,10 @@ class InterventionController
             echo json_encode(["message" => "All fields are required.", "error" => "invalid data"]);
             return;
         }
-
         $intervention = Intervention::insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase);
-        if ($intervention == -1) {
-            http_response_code(500);
-            echo json_encode(["message" => "Database error."]);
-            return;
-        }
-
-        return ["message" => "Intervention created successfully."];
+        return $intervention;
     }
-    // parameters neccessary are intervention_id and modifie_par
+    // parameters neccessary are intervention_id, technicien_id, projet_id, date_intervention, IDPhase
     static public function confirmIntervention($modifie_par)
     {
         $data = json_decode(file_get_contents("php://input"));
@@ -132,13 +102,7 @@ class InterventionController
         }
 
         $intervention = Intervention::confirmate($intervention_id, $modifie_par, $technicien_id, $projet_id, $date_intervention, $IDPhase);
-        if ($intervention == -1) {
-            http_response_code(500);
-            echo json_encode(["message" => "Database error."]);
-            return;
-        }
-
-        return ["message" => "Intervention confimate successfully."];
+        return $intervention;
     }
     // parameters neccessary are intervention_id and technicien_id
     static public function validateIntervention($technicien_id)
@@ -159,14 +123,7 @@ class InterventionController
         }
 
         $intervention = Intervention::validate($intervention_id);
-        if ($intervention == -1) {
-            http_response_code(500);
-            echo json_encode(["message" => "Database error."]);
-            return;
-        }
-
-
-        return ["message" => "Intervention validated successfully."];
+        return $intervention;
     }
     // parameters neccessary are intervention_id and obs and technicien_id
     static public function annulerIntervention($technicien_id)
@@ -188,14 +145,7 @@ class InterventionController
         }
 
         $intervention = Intervention::annuler($intervention_id, $obs);
-        if ($intervention == -1) {
-            http_response_code(500);
-            echo json_encode(["message" => "Database error."]);
-            return;
-        }
-
-
-        return ["message" => "Intervention canceled successfully."];
+        return $intervention;
     }
     // parameters neccessary are fromDate and toDate
     static public function DemandesInterventions()
@@ -211,11 +161,6 @@ class InterventionController
         }
 
         $interventions = Intervention::getDemandesInterventions($fromDate, $toDate);
-        if ($interventions == -1) {
-            http_response_code(404);
-            echo json_encode(["message" => "No interventions found."]);
-            return;
-        }
         return $interventions;
     }
     // parameters neccessary are intervention_id and obs
@@ -232,12 +177,11 @@ class InterventionController
         }
 
         $intervention = Intervention::rejectDemandeIntervention($intervention_id, $obs, $user_id);
-        if ($intervention == -1) {
-            http_response_code(500);
-            echo json_encode(["message" => "Database error."]);
-            return;
-        }
-
-        return ["message" => "Intervention rejected successfully."];
+        return $intervention;
+    }
+    public static function DemandesInterventionsTec($user_id)
+    {
+        $interventions = Intervention::getDemandesInterventionsTec($user_id);
+        return $interventions;
     }
 }

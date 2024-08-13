@@ -4,9 +4,12 @@ require 'vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 require_once('./autoload.php');
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+use \Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
+// header("Content-Type: application/json; charset=UTF-8");
+// header("Access-Control-Allow-Methods: GET, POST");
+// header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 $Home = new HomeController();
 $Home->handleRequest();
@@ -15,16 +18,18 @@ class HomeController
 {
     public function handleRequest()
     {
+
         // Handle the page request based on user type
         if (isset($_GET['page']) && $_GET['page'] != 'login') {
             // Validate JWT token and get user data
-            $userData = JWTMiddleware::validateToken();
+            $userData = checkToken();
             if (isset($userData['message'])) {
                 // If there's an error message, send it back
                 echo json_encode($userData);
                 return;
             }
-
+            // http_response_code(200);
+            // echo json_encode($userData);
             $user_type = $userData['user_type'] ?? '';
             $user_id = $userData['id'] ?? '';
             $page = $_GET['page'];
@@ -60,7 +65,7 @@ class HomeController
 
     private function handleChef($page, $user_id)
     {
-        $pages = ['interventionsChef', "interventionChef", "addInterventionInterface", "AddIntervention", 'DemandesInterventions', "ValidateDemandeIntervention", "RejectDemandeIntervention", "AcceptDemandeConge", "RejectDemandeConge", 'PrereceptionsChef', "ReceptionsChef", "DemandesConges"];
+        $pages = ['interventionsChef', "interventionChef", "addInterventionInterface", "AddIntervention", 'DemandesInterventions', "ValidateDemandeIntervention", "RejectDemandeIntervention", "AcceptDemandeConge", "RejectDemandeConge", 'PreReceptionsChef', "ReceptionsChef", "PreReceptionChef", "ReceptionChef", "DemandesConges", "DemandeConge"];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsChef':
@@ -73,7 +78,7 @@ class HomeController
                     ChefInterfaceController::addInterventionInterface();
                     break;
                 case "AddIntervention":
-                    ChefInterfaceController::addInterventionAction();
+                    ChefInterfaceController::addInterventionAction($user_id);
                     break;
                 case "ValidateDemandeIntervention":
                     ChefInterfaceController::ValidateDemandeIntervention($user_id);
@@ -81,17 +86,26 @@ class HomeController
                 case "RejectDemandeIntervention":
                     ChefInterfaceController::RejectDemandeIntervention($user_id);
                     break;
-                case 'PrereceptionsChef':
-                    echo "PrereceptionsChef";
+                case 'PreReceptionsChef':
+                    ChefInterfaceController::PreReceptionsChef();
                     break;
                 case 'ReceptionsChef':
-                    echo "ReceptionsChef";
+                    ChefInterfaceController::ReceptionsChef();
+                    break;
+                case 'PreReceptionChef':
+                    ChefInterfaceController::getPreReception();
+                    break;
+                case 'ReceptionChef':
+                    ChefInterfaceController::getReception();
                     break;
                 case 'DemandesInterventions':
                     ChefInterfaceController::DemandesInterventions();
                     break;
                 case 'DemandesConges':
                     ChefInterfaceController::DemandesConges();
+                    break;
+                case 'DemandeConge':
+                    ChefInterfaceController::DemandeConge();
                     break;
                 case "AcceptDemandeConge":
                     ChefInterfaceController::AcceptDemandeConge();
@@ -110,12 +124,9 @@ class HomeController
 
     private function handleTechnicien($page, $user_id)
     {
-        $pages = ['Programme', "InterventionDetails", "addInterventionInterface", "addInterventionAction", "DemandesInterventionsTec", "NewReception", 'CongesInterface', "AddDemandeConge"];
+        $pages = ['Programme', "InterventionDetails", "addInterventionInterface", "addInterventionAction", "DemandesInterventionsTec", "NewReception", "NewReceptionInterface", 'CongesInterface', "AddDemandeConge", "insertPV", "getPV", "getPVs", "annulerIntervention"];
         if (in_array($page, $pages)) {
             switch ($page) {
-                case 'interventionsTec':
-                    echo "interventionsTec";
-                    break;
                 case 'CongesInterface':
                     TechnicienInterfaceController::CongesInterface($user_id);
                     break;
@@ -134,11 +145,26 @@ class HomeController
                 case "addInterventionAction":
                     TechnicienInterfaceController::addInterventionAction($user_id);
                     break;
+                case "annulerIntervention":
+                    TechnicienInterfaceController::annulateIntervention($user_id);
+                    break;
+                case "insertPV":
+                    TechnicienInterfaceController::insertPV($user_id);
+                    break;
+                case "getPV":
+                    TechnicienInterfaceController::getPV($user_id);
+                    break;
+                case "getPVs":
+                    TechnicienInterfaceController::getPVs($user_id);
+                    break;
                 case 'DemandesInterventionsTec':
-                    echo "DemandesInterventionsTec";
+                    TechnicienInterfaceController::DemandesInterventionsTec($user_id);
+                    break;
+                case 'NewReceptionInterface':
+                    TechnicienInterfaceController::NewReceptionInterface();
                     break;
                 case 'NewReception':
-                    echo "NewReception";
+                    TechnicienInterfaceController::NewReception($user_id);
                     break;
             }
         } else {
@@ -184,5 +210,32 @@ class HomeController
         } else {
             echo "404 Not Found";
         }
+    }
+}
+
+function checkToken()
+{
+    $headers = apache_request_headers();
+    if (!isset($headers['authorization'])) {
+        http_response_code(400);
+        return ["message" => "Token is required. 1"];
+    }
+
+    $token = $headers['authorization'];
+    $token = str_replace('Bearer ', '', $token);
+
+    if (!$token) {
+        http_response_code(401);
+        return ["message" => "Token is required. 2"];
+    }
+
+    try {
+        $decoded = JWT::decode($token, new Key($_ENV['JWT_SECRET'], 'HS256'));
+        $cc = (array) $decoded->data; // Convert stdClass object to array
+        return $cc;
+        return;
+    } catch (Exception $e) {
+        http_response_code(401);
+        return ["message" => "Access denied.", "error" => $e->getMessage()];
     }
 }

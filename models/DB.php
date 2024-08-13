@@ -47,6 +47,9 @@ class Database
     }
     public static function encode_utf8($res)
     {
+        if (!is_array($res)) {
+            return mb_convert_encoding($res, 'UTF-8', 'ISO-8859-1');
+        }
         foreach ($res as &$row) {
             foreach ($row as &$value) {
                 $value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
