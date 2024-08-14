@@ -35,9 +35,10 @@ class PV
     public static function getPVs($fromDate, $toDate)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT * FROM PV WHERE date_creation BETWEEN :fromDate AND :toDate");
-            $stm->bindParam(":fromDate", $fromDate);
-            $stm->bindParam(":toDate", $toDate);
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT PV.*,interventions.*,Personnel.Nom_personnel FROM PV
+            INNER JOIN interventions ON interventions.intervention_id=PV.intervention_id
+            INNER JOIN Personnel ON Personnel.IDPersonnel=interventions.technicien_id
+             WHERE PV.date_creation BETWEEN " . $fromDate . " AND " . $toDate);
             $stm->execute();
             return $stm->fetchAll();
         } catch (PDOException $e) {

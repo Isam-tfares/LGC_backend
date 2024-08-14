@@ -46,17 +46,20 @@ class Phase_projet
             $stmt = $db->prepare("SELECT
             Pre_reception.*,
             Phase.libelle AS PhaseLibelle,
-            Projet.abr_projet AS ProjetAbr,
+            Client.abr_client,
+            Projet.abr_projet ,
             Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Pre_reception.IDPersonnel
             betontypes.labelle AS TypeBetonLibelle,
             Materiaux.labelle AS MateriauxLibelle,
-            Personnel2.Nom_personnel AS SaisieParNom          -- Nom_personnel related to Pre_reception.saisiePar
+            Personnel2.Nom_personnel AS SaisieParNom         -- Nom_personnel related to Pre_reception.saisiePar
             FROM
                 Pre_reception
             INNER JOIN
                 Phase ON Pre_reception.IDPhase = Phase.IDPhase
             INNER JOIN
                 Projet ON Pre_reception.IDProjet = Projet.IDProjet
+            INNER JOIN
+                Client ON Projet.IDClient = Client.IDClient
             INNER JOIN
                 Personnel AS Personnel1 ON Pre_reception.IDPersonnel = Personnel1.IDPersonnel
             INNER JOIN
@@ -66,7 +69,8 @@ class Phase_projet
             INNER JOIN
                 Personnel AS Personnel2 ON Pre_reception.saisiePar = Personnel2.IDPersonnel
             WHERE
-                Pre_reception.saisiele BETWEEN " . $fromDate . " AND " . $toDate);
+            Pre_reception.etat_confirmation=0 
+            AND Pre_reception.saisiele BETWEEN " . $fromDate . " AND " . $toDate);
 
             $stmt->execute();
             $receptions = $stmt->fetchAll(PDO::FETCH_ASSOC);

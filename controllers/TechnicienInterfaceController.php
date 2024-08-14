@@ -7,11 +7,13 @@ class TechnicienInterfaceController
         $days = CongeController::getDaysAvailable($user_id);
         $motifs = MotifsConges::get();
         $conges = CongeController::getCongeHistorique($user_id);
+        $demandesConges = CongeController::getCongesDemandesTec($user_id);
         $data = [
             "years" => $years,
             "days" => $days,
             "motifs" => $motifs,
             "conges" => $conges,
+            "demandesConges" => $demandesConges
         ];
         http_response_code(200);
         echo json_encode($data);

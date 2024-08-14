@@ -88,8 +88,9 @@ class PVController
     }
     public static function getPVsTec($user_id)
     {
-        $fromDate = $_GET['fromDate'] ?? '';
-        $toDate = $_GET['toDate'] ?? '';
+        $data = json_decode(file_get_contents("php://input"), true);
+        $fromDate = $data['fromDate'] ?? '';
+        $toDate = $data['toDate'] ?? '';
         if (empty($fromDate) || empty($toDate)) {
             http_response_code(400);
             echo json_encode(["message" => "fromDate and toDate are required."]);
@@ -98,10 +99,11 @@ class PVController
         $pvs = PV::getPVsTec($fromDate, $toDate, $user_id);
         return $pvs;
     }
-    public static function getPVs($fromDate, $toDate)
+    public static function getPVs()
     {
-        $fromDate = $_GET['fromDate'] ?? '';
-        $toDate = $_GET['toDate'] ?? '';
+        $data = json_decode(file_get_contents("php://input"), true);
+        $fromDate = $data['fromDate'] ?? '';
+        $toDate = $data['toDate'] ?? '';
         if (empty($fromDate) || empty($toDate)) {
             http_response_code(400);
             echo json_encode(["message" => "fromDate and toDate are required."]);

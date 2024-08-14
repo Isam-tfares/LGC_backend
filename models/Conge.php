@@ -15,6 +15,21 @@ class Conge
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $conges;
     }
+    public static function getCongesDemandesTec($user_id, $year)
+    {
+        $con = Database::getInstance()->getConnection();
+        $sql = "SELECT conges.*,motifsconge.*,Personnel.Nom_personnel
+                FROM conges
+                INNER JOIN motifsconge ON motifsconge.motifsconge_id=conges.motifsconge_id
+                INNER JOIN Personnel ON Personnel.IDPersonnel = conges.user_id
+                WHERE conges.annee=:year AND conges.user_id=:user_id AND conges.etat_demande=1";
+        $stmt = $con->prepare($sql);
+        $stmt->bindParam(':year', $year);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->execute();
+        $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $conges;
+    }
     public static function getDemandeConge($conge_id)
     {
 
@@ -63,7 +78,7 @@ class Conge
     public static function getDaysAvailable($IDPersonnel, $year)
     {
         $con = Database::getInstance()->getConnection();
-        $sql = "SELECT * FROM conges WHERE user_id = ? AND annee = ?";
+        $sql = "SELECT * FROM conges WHERE user_id = ? AND annee = ? AND etat_demande = 2";
         $stmt = $con->prepare($sql);
         $stmt->execute([$IDPersonnel, $year]);
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -96,9 +111,6 @@ class Conge
         $stmt->bindParam(':motifsconge_id', $motifsconge_id);
         $stmt->bindParam(':autreMotif', $autreMotif);
         $stmt->execute();
-        if ($stmt->rowCount() == 0) {
-            return -1;
-        }
-        return 1;
+        return $stmt->rowCount() > 0;
     }
 }

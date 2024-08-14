@@ -48,7 +48,7 @@ class HomeController
             case 'technicien':
                 $this->handleTechnicien($page, $user_id);
                 break;
-            case 'reception':
+            case 'receptionneur':
                 $this->handleReception($page, $user_id);
                 break;
             case 'labo':
@@ -174,20 +174,32 @@ class HomeController
 
     private function handleReception($page, $user_id)
     {
-        $pages = ['interventionsRec', "PrereceptionsRec", 'Conges', 'receptions'];
+        $pages = ['interventionsRec', "PrereceptionsRec", 'CongesInterface', "AddDemandeConge", 'receptions', "PVs", "PreReception", "Reception"];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsRec':
-                    echo "interventionsRec";
+                    ChefInterfaceController::interventionsChef();
                     break;
-                case 'Conges':
-                    echo "Conges";
+                case 'CongesInterface':
+                    TechnicienInterfaceController::CongesInterface($user_id);
+                    break;
+                case "AddDemandeConge":
+                    TechnicienInterfaceController::AddDemandeConge($user_id);
                     break;
                 case 'receptions':
                     echo "receptions";
                     break;
                 case 'PrereceptionsRec':
-                    echo "PrereceptionsRec";
+                    ReceptionController::PrereceptionsRec();
+                    break;
+                case "PreReception":
+                    ReceptionController::PreReception();
+                    break;
+                case "Reception":
+                    ReceptionController::Reception();
+                    break;
+                case 'PVs':
+                    ReceptionController::PVs();
                     break;
             }
         } else {

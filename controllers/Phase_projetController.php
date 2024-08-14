@@ -42,7 +42,7 @@ class Phase_projetController
     public static function getPreReception()
     {
         $data = json_decode(file_get_contents("php://input"));
-        $reception_id = $data->reception_id ?? '';
+        $reception_id = $data->IDPre_reception ?? '';
         if ($reception_id == '') {
             http_response_code(400);
             echo json_encode(["message" => "Please provide a valid reception ID"]);

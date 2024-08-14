@@ -31,6 +31,10 @@ class CongeController
     public static function getYears($IDPersonnel)
     {
         $years = Conge::getYears($IDPersonnel);
+        // $currentYear = date('Y');
+        // if (!in_array($currentYear, $years)) {
+        //     $years[] = $currentYear;
+        // }
         return $years;
     }
     // parameters necessary are fromDate, toDate,year,nbr_days,motifsconge_id,autreMotif
@@ -69,6 +73,21 @@ class CongeController
 
         // Call the method to get congés demandes
         $conges = Conge::getCongesDemandes($fromDate, $toDate);
+        return $conges;
+    }
+    public static function getCongesDemandesTec($user_id)
+    {
+        // Read and decode the input JSON
+        $data = json_decode(file_get_contents('php://input'), true);
+        $year = $data['year'] ?? '';
+        // Validate the date parameters
+        if (empty($year)) {
+            http_response_code(400);
+            echo json_encode(["message" => "year is required.", "error" => "invalid data"]);
+            return; // Exit the function to prevent further processing
+        }
+        // Call the method to get congés demandes
+        $conges = Conge::getCongesDemandesTec($user_id, $year);
         return $conges;
     }
     public static function getDemandeConge()
