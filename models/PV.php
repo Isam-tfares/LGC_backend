@@ -2,19 +2,16 @@
 require_once('DB.php');
 class PV
 {
-    public static function insertPV($intervention_id, $imageName)
+    public static function insertPV($intervention_id, $imageName, $IDPre_reception)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare('INSERT INTO PV (intervention_id,image_path,date_creation)
-            VALUES (:intervention_id, :image_path, SYSDATE)');
+            $stm = Database::getInstance()->getConnection()->prepare("INSERT INTO PV (intervention_id,image_path,date_creation,IDPre_reception)
+            VALUES (:intervention_id, :image_path, SYSDATE,:IDPre_reception)");
             $stm->bindParam(':intervention_id', $intervention_id);
             $stm->bindParam(':image_path', $imageName);
+            $stm->bindParam(':IDPre_reception', $IDPre_reception);
             $stm->execute();
-            if ($stm->rowCount()) {
-                return 1;
-            } else {
-                return -1;
-            }
+            return $stm->rowCount() > 0;
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);

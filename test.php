@@ -4,13 +4,22 @@ require 'vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 require_once('./autoload.php');
+require("./models/DB.php");
 
 
-$headers = apache_request_headers();
-$token = $headers['authorization'];
-$token = str_replace('Bearer ', '', $token);
-$data = Client::getAll();
-$data = Database::encode_utf8($data);
-$response = json_encode(["clients" => $data[0], "token" => $token]);
-header('Content-Type: application/json');
-echo json_encode($response);
+$db = Database::getInstance()->getConnection();
+$stmt = $db->prepare("SELECT * FROM Pre_reception");
+
+$stmt->execute();
+$receptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$receptions = Database::encode_utf8($receptions);
+echo '<h1>PreReception</h1>';
+print_r($receptions[0]);
+
+$stmt = $db->prepare("SELECT * FROM Phase_projet LIMIT 1");
+
+$stmt->execute();
+$receptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$receptions = Database::encode_utf8($receptions);
+echo '<h1>Phase_projet</h1>';
+print_r($receptions[0]);

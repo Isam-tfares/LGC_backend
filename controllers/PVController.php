@@ -12,6 +12,8 @@ class PVController
             echo json_encode(["message" => "intervention_id and image are required."]);
             return;
         }
+        // get Pre_reception id
+        $IDPre_reception =  Phase_projet::getPreReceptionByIntervention($intervention_id)["IDPre_reception"];
 
         // Check if user_id is who has the intervention
         $intervention = Intervention::get($intervention_id);
@@ -58,7 +60,7 @@ class PVController
         // Move the file to the desired location
         if (move_uploaded_file($imageTmpPath, $destPath)) {
             // Call the insertPV method to handle the rest of the insertion logic
-            $response = PV::insertPV($intervention_id, $uniqueImageName);
+            $response = PV::insertPV($intervention_id, $uniqueImageName, $IDPre_reception);
 
             http_response_code(200);
             echo json_encode($response);

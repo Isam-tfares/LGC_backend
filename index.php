@@ -65,7 +65,7 @@ class HomeController
 
     private function handleChef($page, $user_id)
     {
-        $pages = ['interventionsChef', "interventionChef", "addInterventionInterface", "AddIntervention", 'DemandesInterventions', "ValidateDemandeIntervention", "RejectDemandeIntervention", "AcceptDemandeConge", "RejectDemandeConge", 'PreReceptionsChef', "ReceptionsChef", "PreReceptionChef", "ReceptionChef", "DemandesConges", "DemandeConge"];
+        $pages = ['interventionsChef', "interventionChef", "addInterventionInterface", "AddIntervention", 'DemandesInterventions', "ValidateDemandeIntervention", "RejectDemandeIntervention", "AcceptDemandeConge", "RejectDemandeConge", "Prereceptions", 'PreReceptions', "Receptions", "PreReception", "Reception", "DemandesConges", "DemandeConge", "validatePreReception"];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsChef':
@@ -86,16 +86,16 @@ class HomeController
                 case "RejectDemandeIntervention":
                     ChefInterfaceController::RejectDemandeIntervention($user_id);
                     break;
-                case 'PreReceptionsChef':
+                case 'Prereceptions':
                     ChefInterfaceController::PreReceptionsChef();
                     break;
-                case 'ReceptionsChef':
+                case 'Receptions':
                     ChefInterfaceController::ReceptionsChef();
                     break;
-                case 'PreReceptionChef':
+                case 'PreReception':
                     ChefInterfaceController::getPreReception();
                     break;
-                case 'ReceptionChef':
+                case 'Reception':
                     ChefInterfaceController::getReception();
                     break;
                 case 'DemandesInterventions':
@@ -113,6 +113,9 @@ class HomeController
                 case "RejectDemandeConge":
                     ChefInterfaceController::RejectDemandeConge();
                     break;
+                case "validatePreReception":
+                    ChefInterfaceController::validatePreReception($user_id);
+                    break;
                 default:
                     echo "None";
                     break;
@@ -124,9 +127,12 @@ class HomeController
 
     private function handleTechnicien($page, $user_id)
     {
-        $pages = ['Programme', "InterventionDetails", "addInterventionInterface", "addInterventionAction", "DemandesInterventionsTec", "NewReception", "NewReceptionInterface", 'CongesInterface', "AddDemandeConge", "insertPV", "getPV", "getPVs", "annulerIntervention"];
+        $pages = ['Programme', "InterventionDetails", "addInterventionInterface", "addInterventionAction", "DemandesInterventionsTec", "NewReception", "NewReceptionInterface", 'CongesInterface', "AddDemandeConge", "insertPV", "getPV", "getPVs", "annulerIntervention", "interventionsWithoutPV", "newPV", "demandesInterventionsTec"];
         if (in_array($page, $pages)) {
             switch ($page) {
+                case "newPV":
+                    TechnicienInterfaceController::insertPV($user_id);
+                    break;
                 case 'CongesInterface':
                     TechnicienInterfaceController::CongesInterface($user_id);
                     break;
@@ -135,6 +141,9 @@ class HomeController
                     break;
                 case 'Programme':
                     TechnicienInterfaceController::Programme($user_id);
+                    break;
+                case 'demandesInterventionsTec':
+                    TechnicienInterfaceController::demandesInterventions($user_id);
                     break;
                 case 'InterventionDetails':
                     TechnicienInterfaceController::InterventionDetails($user_id);
@@ -148,9 +157,6 @@ class HomeController
                 case "annulerIntervention":
                     TechnicienInterfaceController::annulateIntervention($user_id);
                     break;
-                case "insertPV":
-                    TechnicienInterfaceController::insertPV($user_id);
-                    break;
                 case "getPV":
                     TechnicienInterfaceController::getPV($user_id);
                     break;
@@ -161,10 +167,16 @@ class HomeController
                     TechnicienInterfaceController::DemandesInterventionsTec($user_id);
                     break;
                 case 'NewReceptionInterface':
-                    TechnicienInterfaceController::NewReceptionInterface();
+                    TechnicienInterfaceController::NewReceptionInterface($user_id);
                     break;
                 case 'NewReception':
                     TechnicienInterfaceController::NewReception($user_id);
+                    break;
+                case "interventionsWithoutPV":
+                    TechnicienInterfaceController::interventionsWithoutPV($user_id);
+                    break;
+                default:
+                    echo "404 Not Found 2";
                     break;
             }
         } else {
@@ -174,7 +186,7 @@ class HomeController
 
     private function handleReception($page, $user_id)
     {
-        $pages = ['interventionsRec', "PrereceptionsRec", 'CongesInterface', "AddDemandeConge", 'receptions', "PVs", "PreReception", "Reception"];
+        $pages = ['interventionsRec', "Prereceptions", 'CongesInterface', "AddDemandeConge", 'Receptions', "PVs", "PreReception", "ReceptionsRec", "Reception", "validatePreReception"];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsRec':
@@ -186,20 +198,23 @@ class HomeController
                 case "AddDemandeConge":
                     TechnicienInterfaceController::AddDemandeConge($user_id);
                     break;
-                case 'receptions':
-                    echo "receptions";
-                    break;
-                case 'PrereceptionsRec':
+                case 'Prereceptions':
                     ReceptionController::PrereceptionsRec();
                     break;
                 case "PreReception":
                     ReceptionController::PreReception();
+                    break;
+                case "Receptions":
+                    ReceptionController::ReceptionsRec();
                     break;
                 case "Reception":
                     ReceptionController::Reception();
                     break;
                 case 'PVs':
                     ReceptionController::PVs();
+                    break;
+                case "validatePreReception":
+                    ChefInterfaceController::validatePreReception($user_id);
                     break;
             }
         } else {

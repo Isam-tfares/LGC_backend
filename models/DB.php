@@ -50,6 +50,10 @@ class Database
         if (!is_array($res)) {
             return mb_convert_encoding($res, 'UTF-8', 'ISO-8859-1');
         }
+        // check if array is empty
+        if (empty($res)) {
+            return $res;
+        }
         foreach ($res as &$row) {
             foreach ($row as &$value) {
                 $value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');

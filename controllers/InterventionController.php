@@ -29,6 +29,11 @@ class InterventionController
         $interventions = Intervention::getAllTechnicien($technicien_id, $date);
         return $interventions;
     }
+    static public function DemandesOfInterventions($technicien_id)
+    {
+        $interventions = Intervention::getDemandesTec($technicien_id);
+        return $interventions;
+    }
     // parameters neccessary are intervention_id
     static public function Intervention($user_id, $role = null)
     {
@@ -183,5 +188,25 @@ class InterventionController
     {
         $interventions = Intervention::getDemandesInterventionsTec($user_id);
         return $interventions;
+    }
+    public static function getNotDoneInterventions($user_id)
+    {
+        $interventions = Intervention::getNotDoneInterventions($user_id);
+        return $interventions;
+    }
+    public static function updateInterventionState($intervention_id, $user_id)
+    {
+        if (empty($intervention_id)) {
+            http_response_code(400);
+            echo json_encode(["message" => "intervention_id is required.", "error" => "invalid data"]);
+            return;
+        }
+        $intervention = Intervention::get($intervention_id);
+        if ($intervention['technicien_id'] != $user_id) {
+            http_response_code(401);
+            echo json_encode(["message" => "Unauthorized"]);
+            return;
+        }
+        $intervention = Intervention::updateState($intervention_id);
     }
 }

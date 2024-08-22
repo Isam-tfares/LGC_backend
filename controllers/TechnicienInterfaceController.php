@@ -37,6 +37,13 @@ class TechnicienInterfaceController
         http_response_code(200);
         echo json_encode($interventions);
     }
+    public static function demandesInterventions($user_id)
+    {
+
+        $interventions = InterventionController::DemandesOfInterventions($user_id);
+        http_response_code(200);
+        echo json_encode($interventions);
+    }
     public static function InterventionDetails($user_id)
     {
 
@@ -111,11 +118,23 @@ class TechnicienInterfaceController
         http_response_code(200);
         echo json_encode($interventions);
     }
-    public static function NewReceptionInterface()
+    public static function NewReceptionInterface($user_id)
     {
-        $interventions = Phase_ObjectController::getNonReceivedInterventions();
+        $clients = Client::getAll();
+        $projects = Projet::getAll();
+        $phases = Phase::get();
+        $materiaux = Materiaux::getAll();
+        $types_beton = BetonTypes::get();
+        $natures_echantillon = EchantillonNatures::get();
+        $interventions_not_done = InterventionController::getNotDoneInterventions($user_id);
         $data = [
-            // data needed for the new reception interface
+            "clients" => $clients,
+            "phases" => $phases,
+            "projects" => $projects,
+            "materiaux" => $materiaux,
+            "types_beton" => $types_beton,
+            "natures_echantillon" => $natures_echantillon,
+            "interventions" => $interventions_not_done
         ];
         http_response_code(200);
         echo json_encode($data);
@@ -130,5 +149,11 @@ class TechnicienInterfaceController
         $response = Phase_projetController::newReceptionTec($user_id);
         http_response_code(200);
         echo json_encode($response);
+    }
+    public static function interventionsWithoutPV($user_id)
+    {
+        $interventions = Intervention::interventionsDoneWithoutPV($user_id);
+        http_response_code(200);
+        echo json_encode($interventions);
     }
 }

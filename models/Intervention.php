@@ -12,7 +12,8 @@ class Intervention
                 INNER JOIN Client ON Projet.IDClient=Client.IDClient 
                 INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
                 WHERE interventions.etat_confirmation=1 
-                AND date_intervention Between " . $fromDate . " and " . $toDate);
+                AND date_intervention Between " . $fromDate . " and " . $toDate . " 
+                ORDER BY interventions.date_intervention DESC");
             $stm->execute();
 
             // Check if there were any errors during execution
@@ -39,7 +40,30 @@ class Intervention
             INNER JOIN Client ON Projet.IDClient=Client.IDClient
             INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
             WHERE interventions.etat_confirmation=1 
-            AND technicien_id=:technicien_id AND date_intervention=" . $date);
+            AND technicien_id=:technicien_id AND date_intervention=" . $date . "
+             ORDER BY interventions.date_intervention DESC");
+            $stm->bindParam(':technicien_id', $technicien_id);
+            $stm->execute();
+            $res = $stm->fetchAll();
+            $res = Database::encode_utf8($res);
+            return $res;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database error: " . $e->getMessage()]);
+        }
+    }
+    static public function getDemandesTec($technicien_id)
+    {
+        try {
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
+            FROM interventions
+            INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
+            INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
+            INNER JOIN Client ON Projet.IDClient=Client.IDClient
+            INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
+            WHERE interventions.etat_confirmation=0
+            AND technicien_id=:technicien_id
+            ORDER BY interventions.date_intervention DESC");
             $stm->bindParam(':technicien_id', $technicien_id);
             $stm->execute();
             $res = $stm->fetchAll();
@@ -173,7 +197,8 @@ class Intervention
             INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
             WHERE etat_confirmation=0
             AND status=1
-            AND date_intervention BETWEEN " . $fromDate . " AND " . $toDate);
+            AND date_intervention BETWEEN " . $fromDate . " AND " . $toDate . " 
+            ORDER BY interventions.date_intervention DESC");
             $stm->execute();
             $res = $stm->fetchAll();
             $res = Database::encode_utf8($res);
@@ -213,12 +238,90 @@ class Intervention
             WHERE etat_confirmation=0
             AND status=1
             AND technicien_id=:technicien_id
-            AND cree_par=:technicien_id");
+            AND cree_par=:technicien_id 
+            ORDER BY interventions.date_intervention DESC");
             $stm->bindParam(':technicien_id', $user_id);
             $stm->execute();
             $res = $stm->fetchAll();
             $res = Database::encode_utf8($res);
             return $res;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database error: " . $e->getMessage()]);
+        }
+    }
+    public static function getNotDoneInterventions($user_id)
+    {
+        try {
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
+            FROM interventions
+            INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
+            INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
+            INNER JOIN Client ON Projet.IDClient=Client.IDClient
+            INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
+            WHERE etat_confirmation=1
+            AND status=1
+            AND technicien_id=:technicien_id 
+            ORDER BY interventions.date_intervention DESC");
+            $stm->bindParam(':technicien_id', $user_id);
+            $stm->execute();
+            $res = $stm->fetchAll();
+            $res = Database::encode_utf8($res);
+            return $res;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database error: " . $e->getMessage()]);
+        }
+    }
+    public static function updateState($intervention_id)
+    {
+        try {
+            $stm = Database::getInstance()->getConnection()->prepare("UPDATE interventions 
+            SET status=2,
+            date_modification=SYSDATE
+            WHERE intervention_id=:intervention_id");
+            $stm->bindParam(':intervention_id', $intervention_id);
+            $stm->execute();
+            return $stm->rowCount() > 0;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database error: " . $e->getMessage()]);
+        }
+    }
+    public static function interventionsDoneWithoutPV($user_id)
+    {
+        try {
+            $stm = Database::getInstance()->getConnection()->prepare(
+                "SELECT interventions.intervention_id
+            FROM interventions
+            LEFT JOIN PV ON interventions.intervention_id = PV.intervention_id
+            WHERE interventions.status = 2
+            AND interventions.technicien_id = :technicien_id
+            AND PV.intervention_id IS NULL 
+            ORDER BY interventions.date_intervention DESC"
+            );
+            $stm->bindParam(':technicien_id', $user_id);
+            $stm->execute();
+            $res = $stm->fetchAll();
+            $res = Database::encode_utf8($res);
+            return $res;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database error: " . $e->getMessage()]);
+        }
+    }
+    public static function confirmeReceptionState($intervention_id, $user_id)
+    {
+        try {
+            $stm = Database::getInstance()->getConnection()->prepare("UPDATE interventions 
+            SET etat_reception=1,
+            date_modification=SYSDATE,
+            modifie_par=:user_id
+            WHERE intervention_id=:intervention_id");
+            $stm->bindParam(':intervention_id', $intervention_id);
+            $stm->bindParam(":user_id", $user_id);
+            $stm->execute();
+            return $stm->rowCount();
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);

@@ -106,13 +106,13 @@ class ChefInterfaceController
     }
     public static function getReception()
     {
-        $reception = Phase_projetController::getReception();
+        $reception = Phase_projetController::getReceptionByIntervention();
         http_response_code(200);
         echo json_encode($reception);
     }
     public static function getPreReception()
     {
-        $reception = Phase_projetController::getPreReception();
+        $reception = Phase_projetController::getPreReceptionByIntervention();
         http_response_code(200);
         echo json_encode($reception);
     }
