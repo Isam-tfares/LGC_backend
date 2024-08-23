@@ -37,7 +37,7 @@ class CongeController
         // }
         return $years;
     }
-    // parameters necessary are fromDate, toDate,year,nbr_days,motifsconge_id,autreMotif
+    // parameters necessary are fromDate, toDate,year,nbr_days,motifsconge_id
     public static function demandeConge($IDPersonnel)
     {
         $data = json_decode(file_get_contents('php://input'), true);
@@ -46,13 +46,12 @@ class CongeController
         $year = $data['year'] ?? '';
         $nbr_days = $data['nbr_days'] ?? '';
         $motifsconge_id = $data['motifsconge_id'] ?? '';
-        $autreMotif = $data['autreMotif'] ?? '';
         if (empty($IDPersonnel) || empty($fromDate) || empty($toDate) || empty($year) || empty($nbr_days) || empty($motifsconge_id)) {
             http_response_code(400);
             echo json_encode(["message" => "IDPersonnel, fromDate, toDate, year, nbr_days and motifsconge_id are required.", "error" => "invalid data"]);
             return;
         }
-        $conge = Conge::demandeConge($IDPersonnel, $fromDate, $toDate, $year, $nbr_days, $motifsconge_id, $autreMotif);
+        $conge = Conge::demandeConge($IDPersonnel, $fromDate, $toDate, $year, $nbr_days, $motifsconge_id);
         return $conge;
     }
     // parameters necessary are fromDate,toDate

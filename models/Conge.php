@@ -98,10 +98,10 @@ class Conge
         $years = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $years;
     }
-    public static function demandeConge($IDPersonnel, $dateDebut, $dateFin, $year, $jours_pris, $motifsconge_id, $autreMotif)
+    public static function demandeConge($IDPersonnel, $dateDebut, $dateFin, $year, $jours_pris, $motifsconge_id)
     {
         $con = Database::getInstance()->getConnection();
-        $sql = "INSERT INTO conges (user_id, start_date, end_date, annee, jours_pris, motifsconge_id, autre_motif,date_demande) VALUES (:IDPersonnel, :dateDebut, :dateFin, :year, :jours_pris, :motifsconge_id,:autreMotif, SYSDATE)";
+        $sql = "INSERT INTO conges (user_id, start_date, end_date, annee, jours_pris, motifsconge_id,date_demande) VALUES (:IDPersonnel, :dateDebut, :dateFin, :year, :jours_pris, :motifsconge_id, SYSDATE)";
         $stmt = $con->prepare($sql);
         $stmt->bindParam(':IDPersonnel', $IDPersonnel);
         $stmt->bindParam(':dateDebut', $dateDebut);
@@ -109,7 +109,6 @@ class Conge
         $stmt->bindParam(':year', $year);
         $stmt->bindParam(':jours_pris', $jours_pris);
         $stmt->bindParam(':motifsconge_id', $motifsconge_id);
-        $stmt->bindParam(':autreMotif', $autreMotif);
         $stmt->execute();
         return $stmt->rowCount() > 0;
     }
