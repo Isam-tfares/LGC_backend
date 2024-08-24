@@ -156,4 +156,21 @@ class TechnicienInterfaceController
         http_response_code(200);
         echo json_encode($interventions);
     }
+    public static function NoteFraisInterface($user_id)
+    {
+        $demandes = NoteFraisController::getDemandes($user_id);
+        $types_charges = TypesCharge::get();
+        $data = [
+            "demandes" => $demandes,
+            "types_charges" => $types_charges
+        ];
+        http_response_code(200);
+        echo json_encode($data);
+    }
+    public static function addNoteFrais($user_id)
+    {
+        $response = NoteFraisController::insertNote($user_id);
+        http_response_code(200);
+        echo json_encode($response);
+    }
 }

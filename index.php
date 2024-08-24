@@ -127,7 +127,7 @@ class HomeController
 
     private function handleTechnicien($page, $user_id)
     {
-        $pages = ['Programme', "InterventionDetails", "addInterventionInterface", "addInterventionAction", "DemandesInterventionsTec", "NewReception", "NewReceptionInterface", 'CongesInterface', "AddDemandeConge", "insertPV", "getPV", "getPVs", "annulerIntervention", "interventionsWithoutPV", "newPV", "demandesInterventionsTec"];
+        $pages = ['Programme', "InterventionDetails", "addInterventionInterface", "addInterventionAction", "DemandesInterventionsTec", "NewReception", "NewReceptionInterface", 'CongesInterface', "AddDemandeConge", "insertPV", "getPV", "getPVs", "annulerIntervention", "interventionsWithoutPV", "newPV", "demandesInterventionsTec", "NoteFraisInterface", "addNoteFrais"];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case "newPV":
@@ -175,6 +175,12 @@ class HomeController
                 case "interventionsWithoutPV":
                     TechnicienInterfaceController::interventionsWithoutPV($user_id);
                     break;
+                case "NoteFraisInterface":
+                    TechnicienInterfaceController::NoteFraisInterface($user_id);
+                    break;
+                case "addNoteFrais":
+                    TechnicienInterfaceController::addNoteFrais($user_id);
+                    break;
                 default:
                     echo "404 Not Found 2";
                     break;
@@ -186,7 +192,7 @@ class HomeController
 
     private function handleReception($page, $user_id)
     {
-        $pages = ['interventionsRec', "Prereceptions", 'CongesInterface', "AddDemandeConge", 'Receptions', "PVs", "PreReception", "ReceptionsRec", "Reception", "validatePreReception"];
+        $pages = ['interventionsRec', "Prereceptions", 'CongesInterface', "AddDemandeConge", 'Receptions', "PVs", "PreReception", "ReceptionsRec", "Reception", "validatePreReception", "NoteFraisInterface", "addNoteFrais"];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsRec':
@@ -215,6 +221,12 @@ class HomeController
                     break;
                 case "validatePreReception":
                     ChefInterfaceController::validatePreReception($user_id);
+                    break;
+                case "NoteFraisInterface":
+                    TechnicienInterfaceController::NoteFraisInterface($user_id);
+                    break;
+                case "addNoteFrais":
+                    TechnicienInterfaceController::addNoteFrais($user_id);
                     break;
             }
         } else {
