@@ -33,7 +33,7 @@ class Intervention
     static public function getAllTechnicien($technicien_id, $date)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Projet.X,Projet.Y,Projet.IDProjet,Client.abr_client,Phase.libelle
             FROM interventions
             INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
             INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet

@@ -24,7 +24,7 @@ class User
     static public function getTechniciens()
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT * FROM users WHERE user_type='technicien'");
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT users.*,Personnel.* FROM users LEFT JOIN Personnel ON PErsonnel.IDPersonnel=users.user_id WHERE users.user_type='technicien'");
             $stm->execute();
             if ($stm->rowCount()) {
                 $res = $stm->fetchAll();

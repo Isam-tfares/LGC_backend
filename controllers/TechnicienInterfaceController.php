@@ -173,4 +173,10 @@ class TechnicienInterfaceController
         http_response_code(200);
         echo json_encode($response);
     }
+    public static function addLocation($user_id)
+    {
+        $response = ProjetController::addLocation($user_id);
+        http_response_code(200);
+        echo json_encode($response);
+    }
 }

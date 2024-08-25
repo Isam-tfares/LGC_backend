@@ -30,7 +30,7 @@ class LoginController
                 "iss" => "your_domain.com",
                 "aud" => "your_domain.com",
                 "iat" => time(),
-                "exp" => time() + 14400,
+                "exp" => time() + 7200, // 2hours
                 "data" => [
                     "id" => $user['user_id'],
                     "username" => $user['username'],

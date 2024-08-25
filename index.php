@@ -65,7 +65,27 @@ class HomeController
 
     private function handleChef($page, $user_id)
     {
-        $pages = ['interventionsChef', "interventionChef", "addInterventionInterface", "AddIntervention", 'DemandesInterventions', "ValidateDemandeIntervention", "RejectDemandeIntervention", "AcceptDemandeConge", "RejectDemandeConge", "Prereceptions", 'PreReceptions', "Receptions", "PreReception", "Reception", "DemandesConges", "DemandeConge", "validatePreReception"];
+        $pages = [
+            'interventionsChef',
+            "interventionChef",
+            "addInterventionInterface",
+            "AddIntervention",
+            'DemandesInterventions',
+            "ValidateDemandeIntervention",
+            "RejectDemandeIntervention",
+            "AcceptDemandeConge",
+            "RejectDemandeConge",
+            "Prereceptions",
+            'PreReceptions',
+            "Receptions",
+            "PreReception",
+            "Reception",
+            "DemandesConges",
+            "DemandeConge",
+            "validatePreReception",
+            "NoteFraisInterface",
+            "addNoteFrais"
+        ];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsChef':
@@ -116,6 +136,12 @@ class HomeController
                 case "validatePreReception":
                     ChefInterfaceController::validatePreReception($user_id);
                     break;
+                case "NoteFraisInterface":
+                    TechnicienInterfaceController::NoteFraisInterface($user_id);
+                    break;
+                case "addNoteFrais":
+                    TechnicienInterfaceController::addNoteFrais($user_id);
+                    break;
                 default:
                     echo "None";
                     break;
@@ -127,7 +153,27 @@ class HomeController
 
     private function handleTechnicien($page, $user_id)
     {
-        $pages = ['Programme', "InterventionDetails", "addInterventionInterface", "addInterventionAction", "DemandesInterventionsTec", "NewReception", "NewReceptionInterface", 'CongesInterface', "AddDemandeConge", "insertPV", "getPV", "getPVs", "annulerIntervention", "interventionsWithoutPV", "newPV", "demandesInterventionsTec", "NoteFraisInterface", "addNoteFrais"];
+        $pages = [
+            'Programme',
+            "InterventionDetails",
+            "addInterventionInterface",
+            "addInterventionAction",
+            "DemandesInterventionsTec",
+            "NewReception",
+            "NewReceptionInterface",
+            'CongesInterface',
+            "AddDemandeConge",
+            "insertPV",
+            "getPV",
+            "getPVs",
+            "annulerIntervention",
+            "interventionsWithoutPV",
+            "newPV",
+            "demandesInterventionsTec",
+            "NoteFraisInterface",
+            "addNoteFrais",
+            "addLocation"
+        ];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case "newPV":
@@ -180,6 +226,9 @@ class HomeController
                     break;
                 case "addNoteFrais":
                     TechnicienInterfaceController::addNoteFrais($user_id);
+                    break;
+                case "addLocation":
+                    TechnicienInterfaceController::addLocation($user_id);
                     break;
                 default:
                     echo "404 Not Found 2";
@@ -264,7 +313,7 @@ function checkToken()
     $token = str_replace('Bearer ', '', $token);
 
     if (!$token) {
-        http_response_code(401);
+        http_response_code(400);
         return ["message" => "Token is required. 2"];
     }
 
@@ -274,7 +323,7 @@ function checkToken()
         return $cc;
         return;
     } catch (Exception $e) {
-        http_response_code(401);
+        http_response_code(200);
         return ["message" => "Access denied.", "error" => $e->getMessage()];
     }
 }
