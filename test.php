@@ -8,13 +8,13 @@
 
 
 // $db = Database::getInstance()->getConnection();
-// $stmt = $db->prepare("SELECT * FROM Pre_reception");
+// $stmt = $db->prepare("SELECT IDClient,abr_client FROM Client Order by abr_client");
 
 // $stmt->execute();
 // $receptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // $receptions = Database::encode_utf8($receptions);
 // echo '<h1>PreReception</h1>';
-// print_r($receptions[0]);
+// print_r(array_slice($receptions, 0, 10));
 
 // $stmt = $db->prepare("SELECT * FROM Phase_projet LIMIT 1");
 

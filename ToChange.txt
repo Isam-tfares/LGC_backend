@@ -1,4 +1,2 @@
 // change Table users by Personnel
-// PreReception Detail and All ### check APIs
-// check for new Prereception that tec is mol intervention
 // lastID Note de frais Problem

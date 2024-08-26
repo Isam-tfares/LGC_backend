@@ -27,16 +27,6 @@ class Phase_projetController
         $preReceptions = Phase_projet::getAllPreReceptions($fromDate, $toDate);
         return $preReceptions;
     }
-    public static function getReception()
-    {
-        echo "Not implemented yet";
-        return;
-    }
-    public static function getPreReception()
-    {
-        echo "Not implemented yet";
-        return;
-    }
     public static function getReceptionByIntervention()
     {
         $data = json_decode(file_get_contents("php://input"));
@@ -87,6 +77,12 @@ class Phase_projetController
         ) {
             http_response_code(400);
             echo json_encode(["message" => "Please provide all required fields"]);
+            return;
+        }
+        $intervention = Intervention::get($data['intervention_id']);
+        if ($intervention['technicien_id'] != $user_id) {
+            http_response_code(401);
+            echo json_encode(["message" => "Unauthorized"]);
             return;
         }
 

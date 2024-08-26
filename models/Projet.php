@@ -5,7 +5,7 @@ class Projet
     public static function getAll()
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT IDProjet,abr_projet,IDClient FROM Projet");
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT IDProjet,abr_projet,IDClient FROM Projet Order by abr_projet");
             $stm->execute();
             if ($stm->rowCount()) {
                 $res = $stm->fetchAll();
@@ -22,7 +22,7 @@ class Projet
     public static function getAllClient($client_id)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT * FROM Projet WHERE IDClient = :client_id");
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT * FROM Projet WHERE IDClient = :client_id Order by abr_projet");
             $stm->bindParam(':client_id', $client_id);
             $stm->execute();
             if ($stm->rowCount()) {

@@ -7,9 +7,6 @@ require_once('./autoload.php');
 
 use \Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
-// header("Content-Type: application/json; charset=UTF-8");
-// header("Access-Control-Allow-Methods: GET, POST");
-// header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 $Home = new HomeController();
 $Home->handleRequest();
@@ -28,8 +25,6 @@ class HomeController
                 echo json_encode($userData);
                 return;
             }
-            // http_response_code(200);
-            // echo json_encode($userData);
             $user_type = $userData['user_type'] ?? '';
             $user_id = $userData['id'] ?? '';
             $page = $_GET['page'];
@@ -76,7 +71,6 @@ class HomeController
             "AcceptDemandeConge",
             "RejectDemandeConge",
             "Prereceptions",
-            'PreReceptions',
             "Receptions",
             "PreReception",
             "Reception",
@@ -241,7 +235,19 @@ class HomeController
 
     private function handleReception($page, $user_id)
     {
-        $pages = ['interventionsRec', "Prereceptions", 'CongesInterface', "AddDemandeConge", 'Receptions', "PVs", "PreReception", "ReceptionsRec", "Reception", "validatePreReception", "NoteFraisInterface", "addNoteFrais"];
+        $pages = [
+            'interventionsRec',
+            "Prereceptions",
+            'CongesInterface',
+            "AddDemandeConge",
+            'Receptions',
+            "PVs",
+            "PreReception",
+            "Reception",
+            "validatePreReception",
+            "NoteFraisInterface",
+            "addNoteFrais"
+        ];
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsRec':
