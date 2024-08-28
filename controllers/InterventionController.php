@@ -17,6 +17,20 @@ class InterventionController
         $interventions = Intervention::getAll($fromDate, $toDate);
         return $interventions;
     }
+    static public function interventionsTecNotDone($user_id)
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+        $fromDate = $data['fromDate'] ?? '';
+        $toDate = $data['toDate'] ?? '';
+        if (empty($fromDate) || empty($toDate)) {
+            http_response_code(400);
+            echo json_encode(["error" => "fromDate and toDate are required."]);
+            return;
+        }
+
+        $interventions = Intervention::getAllNotdone($fromDate, $toDate, $user_id);
+        return $interventions;
+    }
     // parameters neccessary are technicien_id and date
     static public function InterventionsTechnicien($technicien_id)
     {
@@ -63,6 +77,7 @@ class InterventionController
         $projet_id = $data->projet_id ?? '';
         $date_intervention = $data->date_intervention ?? '';
         $IDPhase = $data->IDPhase ?? '';
+        $Lieux_ouvrage = $data->Lieux_ouvrage ?? '';
         $etat = 1;
         $created_by = $user_id;
         if (empty($technicien_id) || empty($projet_id) || empty($date_intervention) || empty($created_by)) {
@@ -71,7 +86,7 @@ class InterventionController
             return;
         }
 
-        $intervention = Intervention::insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase);
+        $intervention = Intervention::insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase, $Lieux_ouvrage);
         return  $intervention;
     }
     // parameters neccessary are  projet_id, date_intervention, IDPhase
@@ -83,12 +98,13 @@ class InterventionController
         $etat = 0;
         $created_by = $technicien_id;
         $IDPhase = $data->IDPhase ?? '';
+        $Lieux_ouvrage = $data->Lieux_ouvrage ?? '';
         if (empty($technicien_id) || empty($projet_id) || empty($date_intervention) || empty($created_by)) {
             http_response_code(400);
             echo json_encode(["message" => "All fields are required.", "error" => "invalid data"]);
             return;
         }
-        $intervention = Intervention::insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase);
+        $intervention = Intervention::insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase, $Lieux_ouvrage);
         return $intervention;
     }
     // parameters neccessary are intervention_id, technicien_id, projet_id, date_intervention, IDPhase
@@ -100,13 +116,14 @@ class InterventionController
         $projet_id = $data->projet_id ?? '';
         $date_intervention = $data->date_intervention ?? '';
         $IDPhase = $data->IDPhase ?? '';
+        $Lieux_ouvrage = $data->Lieux_ouvrage ?? '';
         if (empty($intervention_id) || empty($modifie_par) || empty($technicien_id) || empty($projet_id) || empty($date_intervention) || empty($IDPhase)) {
             http_response_code(400);
             echo json_encode(["message" => "All fields are required.", "error" => "invalid data"]);
             return;
         }
 
-        $intervention = Intervention::confirmate($intervention_id, $modifie_par, $technicien_id, $projet_id, $date_intervention, $IDPhase);
+        $intervention = Intervention::confirmate($intervention_id, $modifie_par, $technicien_id, $projet_id, $date_intervention, $IDPhase, $Lieux_ouvrage);
         return $intervention;
     }
     // parameters neccessary are intervention_id and technicien_id

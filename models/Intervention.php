@@ -30,6 +30,38 @@ class Intervention
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);
         }
     }
+    static public function getAllNotdone($fromDate, $toDate, $user_id)
+    {
+        $user_id = (int)$user_id;
+        try {
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
+                FROM interventions
+                INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
+                INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
+                INNER JOIN Client ON Projet.IDClient=Client.IDClient 
+                INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
+                WHERE interventions.etat_confirmation=1 
+                AND Personnel.IDPersonnel=" . $user_id . "
+                AND interventions.status=1
+                AND interventions.date_intervention Between " . $fromDate . " and " . $toDate . " 
+                ORDER BY interventions.date_intervention DESC");
+
+            $stm->execute();
+
+            // Check if there were any errors during execution
+            if ($stm->errorCode() != '00000') {
+                $errorInfo = $stm->errorInfo();
+                throw new Exception("SQL Error: " . $errorInfo[2]);
+            }
+
+            $res = $stm->fetchAll(PDO::FETCH_ASSOC); // Use FETCH_ASSOC to get an associative array
+            $res = Database::encode_utf8($res);
+            return $res;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database error: " . $e->getMessage()]);
+        }
+    }
     static public function getAllTechnicien($technicien_id, $date)
     {
         try {
@@ -95,18 +127,19 @@ class Intervention
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);
         }
     }
-    static public function insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase)
+    static public function insert($technicien_id, $projet_id, $date_intervention, $etat, $created_by, $IDPhase, $Lieux_ouvrage)
     {
         try {
             $stm = Database::getInstance()->getConnection()->prepare("INSERT INTO interventions 
-            (technicien_id,projet_id,date_intervention,etat_confirmation,cree_par,date_creation,IDPhase,status)
-            VALUES (:technicien_id,:projet_id,:date_intervention,:etat_confirmation,:cree_par,SYSDATE,:IDPhase,1)");
+            (technicien_id,projet_id,date_intervention,etat_confirmation,cree_par,date_creation,IDPhase,status,Lieux_ouvrage)
+            VALUES (:technicien_id,:projet_id,:date_intervention,:etat_confirmation,:cree_par,SYSDATE,:IDPhase,1,:Lieux_ouvrage)");
             $stm->bindParam(':technicien_id', $technicien_id);
             $stm->bindParam(':projet_id', $projet_id);
             $stm->bindParam(':date_intervention', $date_intervention);
             $stm->bindParam(':etat_confirmation', $etat);
             $stm->bindParam(':cree_par', $created_by);
             $stm->bindParam(':IDPhase', $IDPhase);
+            $stm->bindParam(':Lieux_ouvrage', $Lieux_ouvrage);
             $stm->execute();
             return $stm->rowCount() > 0;
         } catch (PDOException $e) {
@@ -135,12 +168,12 @@ class Intervention
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);
         }
     }
-    static public function confirmate($intervention_id, $modifie_par, $technicien_id, $projet_id, $date_intervention, $IDPhase)
+    static public function confirmate($intervention_id, $modifie_par, $technicien_id, $projet_id, $date_intervention, $IDPhase, $Lieux_ouvrage)
     {
         try {
             $stm = Database::getInstance()->getConnection()->prepare("UPDATE interventions 
             SET etat_confirmation=1,technicien_id=:technicien_id,projet_id=:projet_id,
-            date_intervention=:date_intervention,IDPhase=:IDPhase,modifie_par=:modifie_par,date_modification=SYSDATE
+            date_intervention=:date_intervention,IDPhase=:IDPhase,modifie_par=:modifie_par,Lieux_ouvrage=:Lieux_ouvrage,date_modification=SYSDATE
             WHERE intervention_id=:intervention_id");
             $stm->bindParam(':intervention_id', $intervention_id);
             $stm->bindParam(':modifie_par', $modifie_par);
@@ -148,6 +181,7 @@ class Intervention
             $stm->bindParam(':projet_id', $projet_id);
             $stm->bindParam(':date_intervention', $date_intervention);
             $stm->bindParam(':IDPhase', $IDPhase);
+            $stm->bindParam(':Lieux_ouvrage', $Lieux_ouvrage);
             $stm->execute();
             return $stm->rowCount() > 0;
         } catch (PDOException $e) {
@@ -253,7 +287,7 @@ class Intervention
     public static function getNotDoneInterventions($user_id)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Projet.IDProjet,Client.abr_client,Phase.libelle
             FROM interventions
             INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
             INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet

@@ -283,9 +283,9 @@ class Phase_projet
                 Projet ON Pre_reception.IDProjet = Projet.IDProjet
             INNER JOIN
                 Personnel AS Personnel1 ON Pre_reception.IDPersonnel = Personnel1.IDPersonnel
-            INNER JOIN
+            LEFT JOIN
                 betontypes ON Pre_reception.IDType_beton = betontypes.beton_type_id
-            INNER JOIN
+            LEFT JOIN
                 Materiaux ON Pre_reception.IDMateriaux = Materiaux.materiaux_id
             INNER JOIN
                 Personnel AS Personnel2 ON Pre_reception.saisiePar = Personnel2.IDPersonnel
@@ -295,6 +295,26 @@ class Phase_projet
                 PV ON Pre_reception.IDPre_reception = PV.IDPre_reception
             WHERE
                 Pre_reception.intervention_id = :intervention_id;");
+            $stmt->bindParam(':intervention_id', $intervention_id);
+            $stmt->execute();
+            $reception = $stmt->fetch(PDO::FETCH_ASSOC);
+            $reception = Database::encode_utf8([$reception])[0];
+            return $reception;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["message" => "Database error: " . $e->getMessage()]);
+        }
+    }
+    public static function getPreReceptionIDByIntervention($intervention_id)
+    {
+        try {
+            $db = Database::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT
+            *
+            FROM
+                Pre_reception
+            WHERE
+                intervention_id = :intervention_id;");
             $stmt->bindParam(':intervention_id', $intervention_id);
             $stmt->execute();
             $reception = $stmt->fetch(PDO::FETCH_ASSOC);

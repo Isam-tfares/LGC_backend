@@ -37,6 +37,13 @@ class TechnicienInterfaceController
         http_response_code(200);
         echo json_encode($interventions);
     }
+    public static function interventionsNotDone($user_id)
+    {
+
+        $interventions = InterventionController::interventionsTecNotDone($user_id);
+        http_response_code(200);
+        echo json_encode($interventions);
+    }
     public static function demandesInterventions($user_id)
     {
 

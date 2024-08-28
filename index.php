@@ -166,7 +166,8 @@ class HomeController
             "demandesInterventionsTec",
             "NoteFraisInterface",
             "addNoteFrais",
-            "addLocation"
+            "addLocation",
+            "interventionsNotDone"
         ];
         if (in_array($page, $pages)) {
             switch ($page) {
@@ -215,6 +216,9 @@ class HomeController
                 case "interventionsWithoutPV":
                     TechnicienInterfaceController::interventionsWithoutPV($user_id);
                     break;
+                case "interventionsNotDone":
+                    TechnicienInterfaceController::interventionsNotDone($user_id);
+                    break;
                 case "NoteFraisInterface":
                     TechnicienInterfaceController::NoteFraisInterface($user_id);
                     break;
@@ -224,6 +228,7 @@ class HomeController
                 case "addLocation":
                     TechnicienInterfaceController::addLocation($user_id);
                     break;
+
                 default:
                     echo "404 Not Found 2";
                     break;

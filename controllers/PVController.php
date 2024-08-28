@@ -13,7 +13,7 @@ class PVController
             return;
         }
         // get Pre_reception id
-        $IDPre_reception =  Phase_projet::getPreReceptionByIntervention($intervention_id)["IDPre_reception"];
+        $IDPre_reception =  Phase_projet::getPreReceptionIDByIntervention($intervention_id)["IDPre_reception"];
 
         // Check if user_id is who has the intervention
         $intervention = Intervention::get($intervention_id);
