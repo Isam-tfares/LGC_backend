@@ -64,6 +64,56 @@ class Phase_projetController
         $response = Phase_projet::validateReception($user_id, $IDPre_reception);
         return $response;
     }
+    public static function UpdatePreReception($user_id)
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+        // if (
+        //     // !isset($data['IDPre_reception']) || 
+        //     !isset($data['IDPhase']) || !isset($data['IDProjet'])
+        //     || !isset($data['nombre']) || !isset($data['IDType_beton']) || !isset($data['IDMateriaux'])
+        //     || !isset($data['observation']) || !isset($data['date_prevus']) || !isset($data['prelevement_par'])
+        //     || !isset($data['Compression']) || !isset($data['Traction']) || !isset($data['Lieux_ouvrage'])
+        //     || !isset($data['Traction_fend'])
+        //     // || !isset($data['IDPersonnel'])
+        // ) {
+        //     http_response_code(400);
+        //     echo json_encode(["message" => "Please provide all required fields"]);
+        //     return;
+        // }
+        $requiredFields = [
+            'IDPhase',
+            'IDProjet',
+            'nombre',
+            'IDType_beton',
+            'IDMateriaux',
+            'observation',
+            // 'date_prevus',
+            'prelevement_par',
+            'Compression',
+            'Traction',
+            'Lieux_ouvrage',
+            'Traction_fend'
+        ];
+        $missingFields = [];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                $missingFields[] = $field;
+            }
+        }
+
+        if (!empty($missingFields)) {
+            http_response_code(400);
+            echo json_encode([
+                "message" => "Please provide all required fields",
+                "missing_fields" => $missingFields
+            ]);
+            return;
+        }
+
+
+        $response = Phase_projet::updateReception($user_id, $data);
+        return $response;
+    }
     // intervention_id,IDPhase, IDProjet, nombre, IDType_beton, IDMateriaux, observation, date_prevus, prelevement_par, Compression, Traction, Lieux_ouvrage, Traction_fend
     public static function newReceptionTec($user_id)
     {

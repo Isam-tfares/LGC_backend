@@ -78,7 +78,9 @@ class HomeController
             "DemandeConge",
             "validatePreReception",
             "NoteFraisInterface",
-            "addNoteFrais"
+            "addNoteFrais",
+            "NewReceptionInterface",
+            "UpdatePreReception"
         ];
         if (in_array($page, $pages)) {
             switch ($page) {
@@ -135,6 +137,12 @@ class HomeController
                     break;
                 case "addNoteFrais":
                     TechnicienInterfaceController::addNoteFrais($user_id);
+                    break;
+                case "NewReceptionInterface":
+                    ChefInterfaceController::NewReceptionInterface();
+                    break;
+                case "UpdatePreReception":
+                    ChefInterfaceController::UpdatePreReception($user_id);
                     break;
                 default:
                     echo "None";
@@ -251,7 +259,9 @@ class HomeController
             "Reception",
             "validatePreReception",
             "NoteFraisInterface",
-            "addNoteFrais"
+            "addNoteFrais",
+            "NewReceptionInterface",
+            "UpdatePreReception"
         ];
         if (in_array($page, $pages)) {
             switch ($page) {
@@ -287,6 +297,12 @@ class HomeController
                     break;
                 case "addNoteFrais":
                     TechnicienInterfaceController::addNoteFrais($user_id);
+                    break;
+                case "NewReceptionInterface":
+                    ChefInterfaceController::NewReceptionInterface();
+                    break;
+                case "UpdatePreReception":
+                    ChefInterfaceController::UpdatePreReception($user_id);
                     break;
             }
         } else {

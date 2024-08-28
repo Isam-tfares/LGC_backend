@@ -14,7 +14,7 @@ class Phase_projet
             betontypes.labelle AS TypeBetonLibelle,
             Materiaux.labelle AS MateriauxLibelle,
             Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Phase_projet.saisiePar
-            Client.abr_client,
+            Client.abr_client,Client.IDClient,
             PV.image_path AS PVPath
             FROM
                 Phase_projet
@@ -52,7 +52,7 @@ class Phase_projet
             $stmt = $db->prepare("SELECT
             Pre_reception.*,
             Phase.libelle AS PhaseLibelle,
-            Client.abr_client,
+            Client.abr_client,Client.IDClient,
             Projet.abr_projet ,
             Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Pre_reception.IDPersonnel
             betontypes.labelle AS TypeBetonLibelle,
@@ -137,6 +137,89 @@ class Phase_projet
                 $stmt->bindValue(':Traction', $preReception['Traction'] ?? null, PDO::PARAM_STR);
                 $stmt->bindValue(':Lieux_ouvrage', $preReception['Lieux_ouvrage'] ?? null, PDO::PARAM_STR);
                 $stmt->bindValue(':Traction_fend', $preReception['Traction_fend'] ?? null, PDO::PARAM_STR);
+                $stmt->bindValue(':saisiele', $preReception['saisiele'] ?? null, PDO::PARAM_STR);
+                $stmt->bindValue(':date_prevus', $preReception['date_prevus'] ?? null, PDO::PARAM_STR);
+                $stmt->bindValue(':modifie_par', $user_id, PDO::PARAM_INT);
+
+                // Execute the insert statement
+                $stmt->execute();
+
+                // Update reception status of intervention
+                $stmt = $db->prepare("UPDATE interventions 
+                SET etat_reception=1,
+                date_modification=SYSDATE,
+                modifie_par=:user_id
+                WHERE intervention_id=:intervention_id");
+                $stmt->bindParam(':intervention_id', $preReception['intervention_id']);
+                $stmt->bindParam(":user_id", $user_id);
+                $stmt->execute();
+
+                // Commit the transaction
+                $db->commit();
+                if ($stmt->rowCount() > 0) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                // Rollback the transaction if pre-reception data is not found
+                $db->rollBack();
+                return ["success" => false, "message" => "Pre-reception not found."];
+            }
+        } catch (PDOException $e) {
+            // Rollback the transaction in case of an error
+            $db->rollBack();
+            http_response_code(500);
+            return ["success" => false, "message" => "Database error: " . $e->getMessage()];
+        }
+    }
+    public static function updateReception($user_id, $data)
+    {
+        try {
+            $db = Database::getInstance()->getConnection();
+
+            // Begin the transaction
+            $db->beginTransaction();
+
+            $IDPre_reception = $data["IDPre_reception"];
+            // Fetch the pre-reception data
+            $stmt = $db->prepare("SELECT * FROM Pre_reception WHERE IDPre_reception=:IDPre_reception and etat_confirmation=0");
+            $stmt->bindParam(':IDPre_reception', $IDPre_reception, PDO::PARAM_INT);
+            $stmt->execute();
+            $preReception = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($preReception) {
+                // Update the Pre_reception record
+                $stmt = $db->prepare("UPDATE Pre_reception SET Modifie_par=:user_id, Modifie_le=SYSDATE, etat_confirmation=1 WHERE IDPre_reception=:IDPre_reception");
+                $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                $stmt->bindParam(':IDPre_reception', $IDPre_reception, PDO::PARAM_INT);
+                $stmt->execute();
+
+                // Insert into Phase_projet
+                $stmt = $db->prepare("INSERT INTO Phase_projet (
+                intervention_id, IDPhase, IDProjet, nombre, IDPersonnel, IDType_beton, IDMateriaux, Observation, saisiePar, prelevement_par, 
+                Compression, Traction, Lieux_ouvrage, Traction_fend, saisiele, date_prevus, Modifie_le, Modifie_par
+            ) VALUES (
+                :intervention_id, :IDPhase, :IDProjet, :nombre, :IDPersonnel, :IDType_beton, :IDMateriaux, :Observation,
+                :saisiePar, :prelevement_par,
+                :Compression, :Traction, :Lieux_ouvrage, :Traction_fend, :saisiele, :date_prevus, SYSDATE, :modifie_par
+            )");
+
+                // Bind parameters
+                $stmt->bindValue(':intervention_id', $preReception['intervention_id'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':IDPhase', $data['IDPhase'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':IDProjet', $data['IDProjet'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':nombre', $data['nombre'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':IDPersonnel', $data['IDPersonnel'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':IDType_beton', $data['IDType_beton'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':IDMateriaux', $data['IDMateriaux'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':Observation', $data['Observation'] ?? null, PDO::PARAM_STR);
+                $stmt->bindValue(':saisiePar', $preReception['saisiePar'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':prelevement_par', $data['prelevement_par'] ?? null, PDO::PARAM_INT);
+                $stmt->bindValue(':Compression', $data['Compression'] ?? null, PDO::PARAM_STR);
+                $stmt->bindValue(':Traction', $data['Traction'] ?? null, PDO::PARAM_STR);
+                $stmt->bindValue(':Lieux_ouvrage', $data['Lieux_ouvrage'] ?? null, PDO::PARAM_STR);
+                $stmt->bindValue(':Traction_fend', $data['Traction_fend'] ?? null, PDO::PARAM_STR);
                 $stmt->bindValue(':saisiele', $preReception['saisiele'] ?? null, PDO::PARAM_STR);
                 $stmt->bindValue(':date_prevus', $preReception['date_prevus'] ?? null, PDO::PARAM_STR);
                 $stmt->bindValue(':modifie_par', $user_id, PDO::PARAM_INT);
@@ -273,7 +356,7 @@ class Phase_projet
             betontypes.labelle AS TypeBetonLibelle,
             Materiaux.labelle AS MateriauxLibelle,
             Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Pre_reception.saisiePar
-            Client.abr_client,
+            Client.abr_client,Client.IDClient
             PV.image_path AS PVPath
             FROM
                 Pre_reception

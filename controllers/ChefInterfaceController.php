@@ -116,10 +116,35 @@ class ChefInterfaceController
         http_response_code(200);
         echo json_encode($reception);
     }
+    public static function UpdatePreReception($user_id)
+    {
+        $response = Phase_projetController::UpdatePreReception($user_id);
+        http_response_code(200);
+        echo json_encode($response);
+    }
     public static function validatePrereception($user_id)
     {
         $response = Phase_projetController::validatePreReception($user_id);
         http_response_code(200);
         echo json_encode($response);
+    }
+    public static function NewReceptionInterface()
+    {
+        $clients = Client::getAll();
+        $projects = Projet::getAll();
+        $phases = Phase::get();
+        $materiaux = Materiaux::getAll();
+        $types_beton = BetonTypes::get();
+        $natures_echantillon = EchantillonNatures::get();
+        $data = [
+            "clients" => $clients,
+            "phases" => $phases,
+            "projects" => $projects,
+            "materiaux" => $materiaux,
+            "types_beton" => $types_beton,
+            "natures_echantillon" => $natures_echantillon
+        ];
+        http_response_code(200);
+        echo json_encode($data);
     }
 }
