@@ -356,7 +356,7 @@ class Phase_projet
             betontypes.labelle AS TypeBetonLibelle,
             Materiaux.labelle AS MateriauxLibelle,
             Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Pre_reception.saisiePar
-            Client.abr_client,Client.IDClient
+            Client.abr_client,Client.IDClient,
             PV.image_path AS PVPath
             FROM
                 Pre_reception

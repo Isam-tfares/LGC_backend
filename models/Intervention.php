@@ -34,7 +34,7 @@ class Intervention
     {
         $user_id = (int)$user_id;
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.X,Projet.Y,Projet.IDProjet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
                 FROM interventions
                 INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
                 INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
@@ -287,7 +287,7 @@ class Intervention
     public static function getNotDoneInterventions($user_id)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Projet.IDProjet,Client.abr_client,Phase.libelle
+            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Projet.IDProjet,Projet.X,Projet.Y,Client.abr_client,Phase.libelle
             FROM interventions
             INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
             INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet

@@ -35,7 +35,8 @@ class PV
             $stm = Database::getInstance()->getConnection()->prepare("SELECT PV.*,interventions.*,Personnel.Nom_personnel FROM PV
             INNER JOIN interventions ON interventions.intervention_id=PV.intervention_id
             INNER JOIN Personnel ON Personnel.IDPersonnel=interventions.technicien_id
-             WHERE PV.date_creation BETWEEN " . $fromDate . " AND " . $toDate);
+             WHERE PV.date_creation BETWEEN " . $fromDate . " AND " . $toDate . "
+             ORDER BY PV.date_creation DESC");
             $stm->execute();
             return $stm->fetchAll();
         } catch (PDOException $e) {
