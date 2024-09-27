@@ -26,28 +26,31 @@ class HomeController
                 return;
             }
             $user_type = $userData['user_type'] ?? '';
+            $user_tache = $userData['user_tache'] ?? '';
             $user_id = $userData['id'] ?? '';
+            $IDAgence = $userData['IDAgence'] ?? '';
             $page = $_GET['page'];
-            $this->dispatchPage($user_type, $page, $user_id);
+            $this->dispatchPage($user_type, $page, $user_id, $user_tache, $IDAgence);
         } else {
-            $this->dispatchPage(null, 'login', "");
+            $this->dispatchPage(null, 'login', "", "", "");
         }
     }
 
-    private function dispatchPage($user_type, $page, $user_id)
+    private function dispatchPage($user_type, $page, $user_id, $user_tache, $IDAgence)
     {
         switch ($user_type) {
-            case 'chef':
-                $this->handleChef($page, $user_id);
+            case 1:
+                $this->handleChef($page, $user_id, $IDAgence);
                 break;
-            case 'technicien':
-                $this->handleTechnicien($page, $user_id);
+            case 5:
+                $this->handleChef($page, $user_id, $IDAgence);
                 break;
-            case 'receptionneur':
-                $this->handleReception($page, $user_id);
-                break;
-            case 'labo':
-                $this->handleLabo($page, $user_id);
+            case 3:
+                if ($user_tache == 2) {
+                    $this->handleTechnicien($page, $user_id, $IDAgence);
+                } elseif ($user_tache == 3) {
+                    $this->handleReception($page, $user_id, $IDAgence);
+                }
                 break;
             default:
                 if ($page == 'login') {
@@ -58,7 +61,7 @@ class HomeController
         }
     }
 
-    private function handleChef($page, $user_id)
+    private function handleChef($page, $user_id, $IDAgence)
     {
         $pages = [
             'interventionsChef',
@@ -85,13 +88,13 @@ class HomeController
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsChef':
-                    ChefInterfaceController::interventionsChef();
+                    ChefInterfaceController::interventionsChef($IDAgence);
                     break;
                 case 'interventionChef':
                     ChefInterfaceController::interventionChef();
                     break;
                 case 'addInterventionInterface':
-                    ChefInterfaceController::addInterventionInterface();
+                    ChefInterfaceController::addInterventionInterface($IDAgence);
                     break;
                 case "AddIntervention":
                     ChefInterfaceController::addInterventionAction($user_id);
@@ -103,10 +106,10 @@ class HomeController
                     ChefInterfaceController::RejectDemandeIntervention($user_id);
                     break;
                 case 'Prereceptions':
-                    ChefInterfaceController::PreReceptionsChef();
+                    ChefInterfaceController::PreReceptionsChef($IDAgence);
                     break;
                 case 'Receptions':
-                    ChefInterfaceController::ReceptionsChef();
+                    ChefInterfaceController::ReceptionsChef($IDAgence);
                     break;
                 case 'PreReception':
                     ChefInterfaceController::getPreReception();
@@ -115,16 +118,16 @@ class HomeController
                     ChefInterfaceController::getReception();
                     break;
                 case 'DemandesInterventions':
-                    ChefInterfaceController::DemandesInterventions();
+                    ChefInterfaceController::DemandesInterventions($IDAgence);
                     break;
                 case 'DemandesConges':
-                    ChefInterfaceController::DemandesConges();
+                    ChefInterfaceController::DemandesConges($IDAgence);
                     break;
                 case 'DemandeConge':
                     ChefInterfaceController::DemandeConge();
                     break;
                 case "AcceptDemandeConge":
-                    ChefInterfaceController::AcceptDemandeConge();
+                    ChefInterfaceController::AcceptDemandeConge($user_id);
                     break;
                 case "RejectDemandeConge":
                     ChefInterfaceController::RejectDemandeConge();
@@ -153,7 +156,7 @@ class HomeController
         }
     }
 
-    private function handleTechnicien($page, $user_id)
+    private function handleTechnicien($page, $user_id, $IDAgence)
     {
         $pages = [
             'Programme',
@@ -246,7 +249,7 @@ class HomeController
         }
     }
 
-    private function handleReception($page, $user_id)
+    private function handleReception($page, $user_id, $IDAgence)
     {
         $pages = [
             'interventionsRec',
@@ -266,7 +269,7 @@ class HomeController
         if (in_array($page, $pages)) {
             switch ($page) {
                 case 'interventionsRec':
-                    ChefInterfaceController::interventionsChef();
+                    ChefInterfaceController::interventionsChef($IDAgence);
                     break;
                 case 'CongesInterface':
                     TechnicienInterfaceController::CongesInterface($user_id);
@@ -348,7 +351,6 @@ function checkToken()
         $decoded = JWT::decode($token, new Key($_ENV['JWT_SECRET'], 'HS256'));
         $cc = (array) $decoded->data; // Convert stdClass object to array
         return $cc;
-        return;
     } catch (Exception $e) {
         http_response_code(200);
         return ["message" => "Access denied.", "error" => $e->getMessage()];

@@ -12,7 +12,7 @@ class Client
                 $res = Database::encode_utf8($res);
                 return $res;
             } else {
-                return -1;
+                return [];
             }
         } catch (PDOException $e) {
             http_response_code(500);

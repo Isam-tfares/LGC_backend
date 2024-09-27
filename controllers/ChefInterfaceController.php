@@ -5,9 +5,9 @@ use \Firebase\JWT\Key;
 
 class ChefInterfaceController
 {
-    public static function interventionsChef()
+    public static function interventionsChef($IDAgence)
     {
-        $interventions = InterventionController::InterventionsChefRec();
+        $interventions = InterventionController::InterventionsChefRec($IDAgence);
         http_response_code(200);
         echo json_encode($interventions);
     }
@@ -17,12 +17,12 @@ class ChefInterfaceController
         http_response_code(200);
         echo json_encode($intervention);
     }
-    public static function addInterventionInterface()
+    public static function addInterventionInterface($IDAgence)
     {
         $clients = Client::getAll();
         $projects = Projet::getAll();
         $phases = Phase::get();
-        $techniciens = User::getTechniciens();
+        $techniciens = User::getTechniciens($IDAgence);
         $data = [
             "clients" => $clients,
             "phases" => $phases,
@@ -38,20 +38,9 @@ class ChefInterfaceController
         http_response_code(200);
         echo json_encode($response);
     }
-    public static function DemandesInterventions()
+    public static function DemandesInterventions($IDAgence)
     {
-        // $clients = Client::getAll();
-        // $projects = Projet::getAll();
-        // $phases = Phase::get();
-        // $techniciens = User::getTechniciens();
-        $demandes = InterventionController::DemandesInterventions();
-        // $data = [
-        //     "clients" => $clients,
-        //     "phases" => $phases,
-        //     "techniciens" => $techniciens,
-        //     "projects" => $projects,
-        //     "demandes" => $demandes
-        // ];
+        $demandes = InterventionController::DemandesInterventions($IDAgence);
         $data = $demandes;
         http_response_code(200);
         echo json_encode($data);
@@ -68,9 +57,9 @@ class ChefInterfaceController
         http_response_code(200);
         echo json_encode($response);
     }
-    public static function DemandesConges()
+    public static function DemandesConges($IDAgence)
     {
-        $conges = CongeController::getCongesDemandes();
+        $conges = CongeController::getCongesDemandes($IDAgence);
         http_response_code(200);
         echo json_encode($conges);
     }
@@ -80,9 +69,9 @@ class ChefInterfaceController
         http_response_code(200);
         echo json_encode($conge);
     }
-    public static function AcceptDemandeConge()
+    public static function AcceptDemandeConge($IDPersonnel)
     {
-        $response = CongeController::acceptConge();
+        $response = CongeController::acceptConge($IDPersonnel);
         http_response_code(200);
         echo json_encode($response);
     }
@@ -92,15 +81,15 @@ class ChefInterfaceController
         http_response_code(200);
         echo json_encode($response);
     }
-    public static function PrereceptionsChef()
+    public static function PrereceptionsChef($IDAgence)
     {
-        $preReceptions = Phase_projetController::PreReceptionsChef();
+        $preReceptions = Phase_projetController::PreReceptionsChef($IDAgence);
         http_response_code(200);
         echo json_encode($preReceptions);
     }
-    public static function ReceptionsChef()
+    public static function ReceptionsChef($IDAgence)
     {
-        $receptions = Phase_projetController::ReceptionsChef();
+        $receptions = Phase_projetController::ReceptionsChef($IDAgence);
         http_response_code(200);
         echo json_encode($receptions);
     }

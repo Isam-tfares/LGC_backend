@@ -3,7 +3,7 @@
 class InterventionController
 {
     // parameters neccessary are fromDate and toDate
-    static public function InterventionsChefRec()
+    static public function InterventionsChefRec($IDAgence)
     {
         $data = json_decode(file_get_contents("php://input"), true);
         $fromDate = $data['fromDate'] ?? '';
@@ -14,7 +14,7 @@ class InterventionController
             return;
         }
 
-        $interventions = Intervention::getAll($fromDate, $toDate);
+        $interventions = Intervention::getAll($fromDate, $toDate, $IDAgence);
         return $interventions;
     }
     static public function interventionsTecNotDone($user_id)
@@ -170,7 +170,7 @@ class InterventionController
         return $intervention;
     }
     // parameters neccessary are fromDate and toDate
-    static public function DemandesInterventions()
+    static public function DemandesInterventions($IDAgence)
     {
         $data = json_decode(file_get_contents("php://input"));
         $fromDate = $data->fromDate ?? '';
@@ -182,7 +182,7 @@ class InterventionController
             return;
         }
 
-        $interventions = Intervention::getDemandesInterventions($fromDate, $toDate);
+        $interventions = Intervention::getDemandesInterventions($fromDate, $toDate, $IDAgence);
         return $interventions;
     }
     // parameters neccessary are intervention_id and obs

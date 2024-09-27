@@ -6,11 +6,11 @@ class BetonTypes
     {
         try {
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT * FROM betontypes");
+            $stmt = $db->prepare("SELECT * FROM Type_beton");
             $stmt->execute();
             $betonTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (!$betonTypes) {
-                return -1;
+                return [];
             }
             $betonTypes = Database::encode_utf8($betonTypes);
             return $betonTypes;

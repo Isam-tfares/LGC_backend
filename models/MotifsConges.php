@@ -6,12 +6,12 @@ class MotifsConges
     {
         try {
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT * FROM motifsconge");
+            $stmt = $db->prepare("SELECT * FROM Nature_conge");
             $stmt->execute();
             $motifsConges = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $motifsConges = Database::encode_utf8($motifsConges);
             if (!$motifsConges) {
-                return -1;
+                return [];
             }
             return $motifsConges;
         } catch (PDOException $e) {

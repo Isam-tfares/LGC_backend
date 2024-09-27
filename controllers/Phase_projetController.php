@@ -1,7 +1,7 @@
 <?php
 class Phase_projetController
 {
-    public static function ReceptionsChef()
+    public static function ReceptionsChef($IDAgence)
     {
         $data = json_decode(file_get_contents("php://input"));
         $fromDate = $data->fromDate ?? '';
@@ -11,10 +11,10 @@ class Phase_projetController
             echo json_encode(["message" => "Please provide a valid date range"]);
             return;
         }
-        $receptions = Phase_projet::getAllReceptions($fromDate, $toDate);
+        $receptions = Phase_projet::getAllReceptions($fromDate, $toDate, $IDAgence);
         return $receptions;
     }
-    public static function PreReceptionsChef()
+    public static function PreReceptionsChef($IDAgence)
     {
         $data = json_decode(file_get_contents("php://input"));
         $fromDate = $data->fromDate ?? '';
@@ -24,7 +24,7 @@ class Phase_projetController
             echo json_encode(["message" => "Please provide a valid date range"]);
             return;
         }
-        $preReceptions = Phase_projet::getAllPreReceptions($fromDate, $toDate);
+        $preReceptions = Phase_projet::getAllPreReceptions($fromDate, $toDate, $IDAgence);
         return $preReceptions;
     }
     public static function getReceptionByIntervention()

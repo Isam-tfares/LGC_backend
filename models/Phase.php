@@ -11,7 +11,7 @@ class Phase
             $phases = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $phases = Database::encode_utf8($phases);
             if (!$phases) {
-                return -1;
+                return [];
             }
             return $phases;
         } catch (PDOException $e) {

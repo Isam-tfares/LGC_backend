@@ -6,12 +6,12 @@ class EchantillonNatures
     {
         try {
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT * FROM echantillonnatures");
+            $stmt = $db->prepare("SELECT * FROM Nature_echantillon");
             $stmt->execute();
             $echantillonNatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $echantillonNatures = Database::encode_utf8($echantillonNatures);
             if (!$echantillonNatures) {
-                return -1;
+                return [];
             }
             return $echantillonNatures;
         } catch (PDOException $e) {

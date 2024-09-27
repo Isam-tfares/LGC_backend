@@ -2,7 +2,7 @@
 require_once('DB.php');
 class Intervention
 {
-    static public function getAll($fromDate, $toDate)
+    static public function getAll($fromDate, $toDate, $IDAgence)
     {
         try {
             $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
@@ -12,6 +12,7 @@ class Intervention
                 INNER JOIN Client ON Projet.IDClient=Client.IDClient 
                 INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
                 WHERE interventions.etat_confirmation=1 
+                AND Personnel.IDAgence=$IDAgence
                 AND date_intervention Between " . $fromDate . " and " . $toDate . " 
                 ORDER BY interventions.date_intervention DESC");
             $stm->execute();
@@ -220,7 +221,7 @@ class Intervention
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);
         }
     }
-    static public function getDemandesInterventions($fromDate, $toDate)
+    static public function getDemandesInterventions($fromDate, $toDate, $IDAgence)
     {
         try {
             $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.IDClient,Client.abr_client,Phase.libelle
@@ -230,6 +231,7 @@ class Intervention
             INNER JOIN Client ON Projet.IDClient=Client.IDClient
             INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
             WHERE etat_confirmation=0
+            AND Personnel.IDAgence=$IDAgence
             AND status=1
             AND date_intervention BETWEEN " . $fromDate . " AND " . $toDate . " 
             ORDER BY interventions.date_intervention DESC");

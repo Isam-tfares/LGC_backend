@@ -2,7 +2,7 @@
 require_once('DB.php');
 class Phase_projet
 {
-    public static function getAllReceptions($fromDate, $toDate)
+    public static function getAllReceptions($fromDate, $toDate, $IDAgence)
     {
         try {
             $db = Database::getInstance()->getConnection();
@@ -11,8 +11,8 @@ class Phase_projet
             Phase.libelle AS PhaseLibelle,
             Projet.abr_projet,
             Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Phase_projet.IDPersonnel
-            betontypes.labelle AS TypeBetonLibelle,
-            Materiaux.labelle AS MateriauxLibelle,
+            Type_beton.Lib_type_beton AS TypeBetonLibelle,
+            materiaux.Lib_materiaux AS MateriauxLibelle,
             Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Phase_projet.saisiePar
             Client.abr_client,Client.IDClient,
             PV.image_path AS PVPath
@@ -24,10 +24,10 @@ class Phase_projet
                 Projet ON Phase_projet.IDProjet = Projet.IDProjet
             INNER JOIN
                 Personnel AS Personnel1 ON Phase_projet.IDPersonnel = Personnel1.IDPersonnel
-            INNER JOIN
-                betontypes ON Phase_projet.IDType_beton = betontypes.beton_type_id
-            INNER JOIN
-                Materiaux ON Phase_projet.IDMateriaux = Materiaux.materiaux_id
+            LEFT JOIN
+                Type_beton ON Phase_projet.IDType_beton = Type_beton.IDType_beton
+            LEFT JOIN
+                Materiaux ON Phase_projet.IDMateriaux = Materiaux.IDMateriaux
             INNER JOIN
                 Personnel AS Personnel2 ON Phase_projet.saisiePar = Personnel2.IDPersonnel
             INNER JOIN
@@ -35,6 +35,7 @@ class Phase_projet
             LEFT JOIN
                 PV ON Phase_projet.intervention_id = PV.intervention_id
             WHERE
+                Personnel1.IDAgence=$IDAgence AND
                 Phase_projet.saisiele BETWEEN " . $fromDate . " AND " . $toDate);
             $stmt->execute();
             $receptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -45,7 +46,7 @@ class Phase_projet
             echo json_encode(["message" => "Database error: " . $e->getMessage()]);
         }
     }
-    public static function getAllPreReceptions($fromDate, $toDate)
+    public static function getAllPreReceptions($fromDate, $toDate, $IDAgence)
     {
         try {
             $db = Database::getInstance()->getConnection();
@@ -55,8 +56,8 @@ class Phase_projet
             Client.abr_client,Client.IDClient,
             Projet.abr_projet ,
             Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Pre_reception.IDPersonnel
-            betontypes.labelle AS TypeBetonLibelle,
-            Materiaux.labelle AS MateriauxLibelle,
+            Type_beton.Lib_type_beton AS TypeBetonLibelle,
+            materiaux.Lib_materiaux AS MateriauxLibelle,
             Personnel2.Nom_personnel AS SaisieParNom,         -- Nom_personnel related to Pre_reception.saisiePar
             PV.image_path AS PVPath
             FROM
@@ -69,16 +70,17 @@ class Phase_projet
                 Client ON Projet.IDClient = Client.IDClient
             INNER JOIN
                 Personnel AS Personnel1 ON Pre_reception.IDPersonnel = Personnel1.IDPersonnel
-            INNER JOIN
-                betontypes ON Pre_reception.IDType_beton = betontypes.beton_type_id
-            INNER JOIN
-                Materiaux ON Pre_reception.IDMateriaux = Materiaux.materiaux_id
+            LEFT JOIN
+                Type_beton ON Pre_reception.IDType_beton = Type_beton.IDType_beton
+            LEFT JOIN
+                Materiaux ON Pre_reception.IDMateriaux = Materiaux.IDMateriaux
             INNER JOIN
                 Personnel AS Personnel2 ON Pre_reception.saisiePar = Personnel2.IDPersonnel
             LEFT JOIN
                 PV ON Pre_reception.IDPre_reception = PV.IDPre_reception
             WHERE
             Pre_reception.etat_confirmation=0 
+            AND Personnel1.IDAgence=$IDAgence
             AND Pre_reception.saisiele BETWEEN " . $fromDate . " AND " . $toDate);
 
             $stmt->execute();
@@ -308,8 +310,8 @@ class Phase_projet
             Phase.libelle AS PhaseLibelle,
             Projet.abr_projet,
             Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Phase_projet.IDPersonnel
-            betontypes.labelle AS TypeBetonLibelle,
-            Materiaux.labelle AS MateriauxLibelle,
+            Type_beton.Lib_type_beton AS TypeBetonLibelle,
+            materiaux.Lib_materiaux AS MateriauxLibelle,
             Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Phase_projet.saisiePar
             Client.abr_client,
             PV.image_path AS PVPath
@@ -321,10 +323,10 @@ class Phase_projet
                 Projet ON Phase_projet.IDProjet = Projet.IDProjet
             INNER JOIN
                 Personnel AS Personnel1 ON Phase_projet.IDPersonnel = Personnel1.IDPersonnel
-            INNER JOIN
-                betontypes ON Phase_projet.IDType_beton = betontypes.beton_type_id
-            INNER JOIN
-                Materiaux ON Phase_projet.IDMateriaux = Materiaux.materiaux_id
+            LEFT JOIN
+                Type_beton ON Phase_projet.IDType_beton = Type_beton.IDType_beton
+            LEFT JOIN
+                Materiaux ON Phase_projet.IDMateriaux = Materiaux.IDMateriaux
             INNER JOIN
                 Personnel AS Personnel2 ON Phase_projet.saisiePar = Personnel2.IDPersonnel
             INNER JOIN
@@ -353,8 +355,8 @@ class Phase_projet
             Phase.libelle AS PhaseLibelle,
             Projet.abr_projet,
             Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Pre_reception.IDPersonnel
-            betontypes.labelle AS TypeBetonLibelle,
-            Materiaux.labelle AS MateriauxLibelle,
+            Type_beton.Lib_type_beton AS TypeBetonLibelle,
+            materiaux.Lib_materiaux AS MateriauxLibelle,
             Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Pre_reception.saisiePar
             Client.abr_client,Client.IDClient,
             PV.image_path AS PVPath
@@ -367,9 +369,9 @@ class Phase_projet
             INNER JOIN
                 Personnel AS Personnel1 ON Pre_reception.IDPersonnel = Personnel1.IDPersonnel
             LEFT JOIN
-                betontypes ON Pre_reception.IDType_beton = betontypes.beton_type_id
+                Type_beton ON Pre_reception.IDType_beton = Type_beton.IDType_beton
             LEFT JOIN
-                Materiaux ON Pre_reception.IDMateriaux = Materiaux.materiaux_id
+                Materiaux ON Pre_reception.IDMateriaux = Materiaux.IDMateriaux
             INNER JOIN
                 Personnel AS Personnel2 ON Pre_reception.saisiePar = Personnel2.IDPersonnel
             INNER JOIN
@@ -417,8 +419,8 @@ class Phase_projet
             Phase.libelle AS PhaseLibelle,
             Projet.abr_projet ,
             Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Phase_projet.IDPersonnel
-            betontypes.labelle AS TypeBetonLibelle,
-            Materiaux.labelle AS MateriauxLibelle,
+            Type_beton.Lib_type_beton AS TypeBetonLibelle,
+            materiaux.Lib_materiaux AS MateriauxLibelle,
             Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Phase_projet.saisiePar
             Client.abr_client,
             PV.image_path AS PVPath
@@ -430,10 +432,10 @@ class Phase_projet
                 Projet ON Phase_projet.IDProjet = Projet.IDProjet
             INNER JOIN
                 Personnel AS Personnel1 ON Phase_projet.IDPersonnel = Personnel1.IDPersonnel
-            INNER JOIN
-                betontypes ON Phase_projet.IDType_beton = betontypes.beton_type_id
-            INNER JOIN
-                Materiaux ON Phase_projet.IDMateriaux = Materiaux.materiaux_id
+            LEFT JOIN
+                Type_beton ON Phase_projet.IDType_beton = Type_beton.IDType_beton
+            LEFT JOIN
+                Materiaux ON Phase_projet.IDMateriaux = Materiaux.IDMateriaux
             INNER JOIN
                 Personnel AS Personnel2 ON Phase_projet.saisiePar = Personnel2.IDPersonnel
             INNER JOIN
