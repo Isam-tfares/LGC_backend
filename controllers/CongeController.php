@@ -113,6 +113,21 @@ class CongeController
         $conges = Conge::getCongesDemandesTec($user_id, $year);
         return $conges;
     }
+    public static function getDemandesRefus($user_id)
+    {
+        // Read and decode the input JSON
+        $data = json_decode(file_get_contents('php://input'), true);
+        $year = $data['year'] ?? '';
+        // Validate the date parameters
+        if (empty($year)) {
+            http_response_code(400);
+            echo json_encode(["message" => "year is required.", "error" => "invalid data"]);
+            return; // Exit the function to prevent further processing
+        }
+        // Call the method to get congés demandes
+        $conges = Conge::getDemandesRefus($user_id, $year);
+        return $conges;
+    }
     public static function getDemandeConge()
     {
         // Read and decode the input JSON
@@ -133,7 +148,7 @@ class CongeController
     }
 
     // parameters necessary are conge_id IDPersonnel
-    public static function acceptConge($IDPersonnel)
+    public static function acceptConge($IDPersonnel, $IDAgence)
     {
         $data = json_decode(file_get_contents('php://input'), true);
         $conge_id = $data['conge_id'] ?? '';
@@ -142,11 +157,11 @@ class CongeController
             echo json_encode(["message" => "conge_id is required.", "error" => "invalid data"]);
             return;
         }
-        $conge = Conge::acceptConge($conge_id, $IDPersonnel);
+        $conge = Conge::acceptConge($conge_id, $IDPersonnel, $IDAgence);
         return $conge;
     }
     // parameters necessary are conge_id IDPersonnel obs
-    public static function refuseConge()
+    public static function refuseConge($user_id, $IDAgence)
     {
         $data = json_decode(file_get_contents('php://input'), true);
         $conge_id = $data['conge_id'] ?? '';
@@ -156,7 +171,7 @@ class CongeController
             echo json_encode(["message" => "conge_id, IDPersonnel and obs are required.", "error" => "invalid data"]);
             return;
         }
-        $conge = Conge::refuseConge($conge_id, $obs);
+        $conge = Conge::refuseConge($user_id, $conge_id, $obs, $IDAgence);
         return $conge;
     }
 }

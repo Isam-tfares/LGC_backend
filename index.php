@@ -48,7 +48,7 @@ class HomeController
             case 3:
                 if ($user_tache == 2) {
                     $this->handleTechnicien($page, $user_id, $IDAgence);
-                } elseif ($user_tache == 3) {
+                } elseif ($user_tache == 1) {
                     $this->handleReception($page, $user_id, $IDAgence);
                 }
                 break;
@@ -127,10 +127,10 @@ class HomeController
                     ChefInterfaceController::DemandeConge();
                     break;
                 case "AcceptDemandeConge":
-                    ChefInterfaceController::AcceptDemandeConge($user_id);
+                    ChefInterfaceController::AcceptDemandeConge($user_id, $IDAgence);
                     break;
                 case "RejectDemandeConge":
-                    ChefInterfaceController::RejectDemandeConge();
+                    ChefInterfaceController::RejectDemandeConge($user_id, $IDAgence);
                     break;
                 case "validatePreReception":
                     ChefInterfaceController::validatePreReception($user_id);

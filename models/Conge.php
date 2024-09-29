@@ -5,12 +5,23 @@ class Conge
     public static function getCongesDemandes($fromDate, $toDate, $IDAgence)
     {
         $con = Database::getInstance()->getConnection();
-        $sql = "SELECT Conge_personnel.*,Nature_conge.*,Personnel.Nom_personnel,Fonction_personnel.lib_fonction_person
+        if ($IDAgence == 4) {
+            $sql = "SELECT Conge_personnel.*,Nature_conge.*,Personnel.Nom_personnel,Fonction_personnel.lib_fonction_person,Agence.libelle
+            FROM Conge_personnel
+            LEFT JOIN Nature_conge ON Nature_conge.IDNature_conge=Conge_personnel.IDNature_conge
+            LEFT JOIN Personnel ON Personnel.IDPersonnel = Conge_personnel.IDPersonnel
+            LEFT JOIN Fonction_personnel ON Fonction_personnel.IDFonction_personnel=Personnel.IDFonction_personnel
+            LEFT JOIN Agence ON Agence.IDAgence=Personnel.IDAgence
+            WHERE Conge_personnel.valide=1 AND Conge_personnel.valide_siege=0 AND Conge_personnel.Non_accorde=0
+            AND Conge_personnel.date_debut > " . $fromDate;
+        } else {
+            $sql = "SELECT Conge_personnel.*,Nature_conge.*,Personnel.Nom_personnel,Fonction_personnel.lib_fonction_person
                 FROM Conge_personnel
                 LEFT JOIN Nature_conge ON Nature_conge.IDNature_conge=Conge_personnel.IDNature_conge
                 LEFT JOIN Personnel ON Personnel.IDPersonnel = Conge_personnel.IDPersonnel
                 LEFT JOIN Fonction_personnel ON Fonction_personnel.IDFonction_personnel=Personnel.IDFonction_personnel
                 WHERE Personnel.IDAgence=$IDAgence AND Conge_personnel.date_debut > " . $fromDate;
+        }
         $stmt = $con->prepare($sql);
         $stmt->execute();
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -24,6 +35,22 @@ class Conge
                 LEFT JOIN Nature_conge ON Nature_conge.IDNature_conge=Conge_personnel.IDNature_conge
                 LEFT JOIN Personnel ON Personnel.IDPersonnel = Conge_personnel.IDPersonnel
                 WHERE Conge_personnel.annee=:year AND Conge_personnel.valide=0 AND conge_personnel.Non_accorde=0 AND Conge_personnel.IDPersonnel=:user_id";
+        $stmt = $con->prepare($sql);
+        $stmt->bindParam(':year', $year);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->execute();
+        $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $conges;
+    }
+    public static function getDemandesRefus($user_id, $year)
+    {
+        $con = Database::getInstance()->getConnection();
+        $sql = "SELECT Conge_personnel.*,Nature_conge.*,Personnel.Nom_personnel
+                FROM Conge_personnel
+                LEFT JOIN Nature_conge ON Nature_conge.IDNature_conge=Conge_personnel.IDNature_conge
+                LEFT JOIN Personnel ON Personnel.IDPersonnel = Conge_personnel.IDPersonnel
+                WHERE Conge_personnel.annee=:year AND conge_personnel.Non_accorde=1 AND Conge_personnel.IDPersonnel=:user_id
+                ORDER BY date_debut DESC";
         $stmt = $con->prepare($sql);
         $stmt->bindParam(':year', $year);
         $stmt->bindParam(':user_id', $user_id);
@@ -46,20 +73,28 @@ class Conge
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $conges;
     }
-    public static function acceptConge($Conge_id, $IDPersonnel)
+    public static function acceptConge($Conge_id, $IDPersonnel, $IDAgence)
     {
         $con = Database::getInstance()->getConnection();
-        $sql = "UPDATE Conge_personnel SET valide = 1,date_valide=SYSDATE,idpersonnel_valide=:IDPersonnel WHERE IDConge_personnel = :conge_id";
+        if ($IDAgence == 4) {
+            $sql = "UPDATE Conge_personnel SET valide_siege = 1,id_perso_siege=:IDPersonnel WHERE IDConge_personnel = :conge_id";
+        } else {
+            $sql = "UPDATE Conge_personnel SET valide = 1,date_valide=SYSDATE,idpersonnel_valide=:IDPersonnel WHERE IDConge_personnel = :conge_id";
+        }
         $stmt = $con->prepare($sql);
         $stmt->execute([$IDPersonnel, $Conge_id]);
         return $stmt->rowCount() > 0;
     }
-    public static function refuseConge($Conge_id, $obs)
+    public static function refuseConge($user_id, $Conge_id, $obs, $IDAgence)
     {
         $con = Database::getInstance()->getConnection();
-        $sql = "UPDATE Conge_personnel SET Non_accorde=1, Motif = ? WHERE IDConge_personnel = ?";
+        if ($IDAgence == 4) {
+            $sql = "UPDATE Conge_personnel SET id_perso_siege=?, Non_accorde=1, Motif = ? WHERE IDConge_personnel = ?";
+        } else {
+            $sql = "UPDATE Conge_personnel SET idpersonnel_valide=?, Non_accorde=1,date_valide=SYSDATE, Motif = ? WHERE IDConge_personnel = ?";
+        }
         $stmt = $con->prepare($sql);
-        $stmt->execute([$obs, $Conge_id]);
+        $stmt->execute([$user_id, $obs, $Conge_id]);
         return $stmt->rowCount() > 0;
     }
     public static function getCongeHistorique($IDPersonnel, $year)
@@ -69,7 +104,7 @@ class Conge
         FROM Conge_personnel 
         LEFT JOIN Nature_conge ON Conge_personnel.IDNature_conge = Nature_conge.IDNature_conge 
         WHERE Conge_personnel.IDPersonnel = :user_id AND Conge_personnel.annee = :year AND Conge_personnel.valide = 1 
-        --AND Conge_personnel.valide_siege = 1
+        AND Conge_personnel.valide_siege = 1
         ";
         $stmt = $con->prepare($sql);
         $stmt->bindParam(':user_id', $IDPersonnel);
@@ -82,7 +117,7 @@ class Conge
     {
         $con = Database::getInstance()->getConnection();
         $sql = "SELECT * FROM Conge_personnel WHERE IDPersonnel = ? AND annee = ? AND Conge_personnel.valide = 1 
-        --AND Conge_personnel.valide_siege = 1
+        AND Conge_personnel.valide_siege = 1
         ";
         $stmt = $con->prepare($sql);
         $stmt->execute([$IDPersonnel, $year]);

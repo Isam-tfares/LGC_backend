@@ -8,12 +8,14 @@ class TechnicienInterfaceController
         $motifs = MotifsConges::get();
         $conges = CongeController::getCongeHistorique($user_id);
         $demandesConges = CongeController::getCongesDemandesTec($user_id);
+        $demandesRefus = CongeController::getDemandesRefus($user_id);
         $data = [
             "years" => $years,
             "days" => $days,
             "motifs" => $motifs,
             "conges" => $conges,
-            "demandesConges" => $demandesConges
+            "demandesConges" => $demandesConges,
+            "demandesRefus" => $demandesRefus
         ];
         http_response_code(200);
         echo json_encode($data);
@@ -141,7 +143,7 @@ class TechnicienInterfaceController
             "materiaux" => $materiaux,
             "types_beton" => $types_beton,
             "natures_echantillon" => $natures_echantillon,
-            "interventions" => $interventions_not_done
+            "interventions" => $interventions_not_done,
         ];
         http_response_code(200);
         echo json_encode($data);

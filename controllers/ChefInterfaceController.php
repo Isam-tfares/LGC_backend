@@ -69,15 +69,15 @@ class ChefInterfaceController
         http_response_code(200);
         echo json_encode($conge);
     }
-    public static function AcceptDemandeConge($IDPersonnel)
+    public static function AcceptDemandeConge($IDPersonnel, $IDAgence)
     {
-        $response = CongeController::acceptConge($IDPersonnel);
+        $response = CongeController::acceptConge($IDPersonnel, $IDAgence);
         http_response_code(200);
         echo json_encode($response);
     }
-    public static function RejectDemandeConge()
+    public static function RejectDemandeConge($user_id, $IDAgence)
     {
-        $response = CongeController::refuseConge();
+        $response = CongeController::refuseConge($user_id, $IDAgence);
         http_response_code(200);
         echo json_encode($response);
     }

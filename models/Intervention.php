@@ -5,7 +5,19 @@ class Intervention
     static public function getAll($fromDate, $toDate, $IDAgence)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
+            if ($IDAgence == 4) {
+                $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle,Agence.libelle AS agence_name
+                FROM interventions
+                INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
+                INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
+                INNER JOIN Client ON Projet.IDClient=Client.IDClient 
+                INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
+                INNER JOIN Agence ON Agence.IDAgence=Personnel.IDAgence
+                WHERE interventions.etat_confirmation=1 
+                AND date_intervention Between " . $fromDate . " and " . $toDate . " 
+                ORDER BY interventions.date_intervention DESC");
+            } else {
+                $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.abr_client,Phase.libelle
                 FROM interventions
                 INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
                 INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
@@ -15,6 +27,7 @@ class Intervention
                 AND Personnel.IDAgence=$IDAgence
                 AND date_intervention Between " . $fromDate . " and " . $toDate . " 
                 ORDER BY interventions.date_intervention DESC");
+            }
             $stm->execute();
 
             // Check if there were any errors during execution
@@ -224,7 +237,20 @@ class Intervention
     static public function getDemandesInterventions($fromDate, $toDate, $IDAgence)
     {
         try {
-            $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.IDClient,Client.abr_client,Phase.libelle
+            if ($IDAgence == 4) {
+                $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.IDClient,Client.abr_client,Phase.libelle,Agence.libelle AS agence_name
+            FROM interventions
+            INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
+            INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
+            INNER JOIN Client ON Projet.IDClient=Client.IDClient
+            INNER JOIN Phase ON interventions.IDPhase=Phase.IDPhase
+            INNER JOIN Agence ON Agence.IDAgence=Personnel.IDAgence
+            WHERE etat_confirmation=0
+            AND status=1
+            AND date_intervention BETWEEN " . $fromDate . " AND " . $toDate . " 
+            ORDER BY interventions.date_intervention DESC");
+            } else {
+                $stm = Database::getInstance()->getConnection()->prepare("SELECT interventions.*,Personnel.Nom_personnel,Projet.abr_projet,Projet.Objet_Projet,Client.IDClient,Client.abr_client,Phase.libelle
             FROM interventions
             INNER JOIN Personnel ON interventions.technicien_id=Personnel.IDPersonnel
             INNER JOIN Projet ON interventions.projet_id=Projet.IDProjet
@@ -235,6 +261,8 @@ class Intervention
             AND status=1
             AND date_intervention BETWEEN " . $fromDate . " AND " . $toDate . " 
             ORDER BY interventions.date_intervention DESC");
+            }
+
             $stm->execute();
             $res = $stm->fetchAll();
             $res = Database::encode_utf8($res);
