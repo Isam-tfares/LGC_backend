@@ -12,7 +12,8 @@ class Conge
             LEFT JOIN Personnel ON Personnel.IDPersonnel = Conge_personnel.IDPersonnel
             LEFT JOIN Fonction_personnel ON Fonction_personnel.IDFonction_personnel=Personnel.IDFonction_personnel
             LEFT JOIN Agence ON Agence.IDAgence=Personnel.IDAgence
-            WHERE Conge_personnel.valide=1 AND Conge_personnel.valide_siege=0 AND Conge_personnel.Non_accorde=0
+            WHERE ( (Conge_personnel.valide=1 AND Conge_personnel.valide_siege=0 AND Conge_personnel.Non_accorde=0) OR (Conge_personnel.valide_siege=1 AND Conge_personnel.Non_accorde=0) 
+            OR (Conge_personnel.Non_accorde=1 AND Conge_personnel.valide=1) )
             AND Conge_personnel.date_debut > " . $fromDate;
         } else {
             $sql = "SELECT Conge_personnel.*,Nature_conge.*,Personnel.Nom_personnel,Fonction_personnel.lib_fonction_person
@@ -25,7 +26,11 @@ class Conge
         $stmt = $con->prepare($sql);
         $stmt->execute();
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $conges;
+        if ($conges) {
+            return Database::encode_utf8($conges);
+        } else {
+            return [];
+        }
     }
     public static function getCongesDemandesTec($user_id, $year)
     {
@@ -40,7 +45,11 @@ class Conge
         $stmt->bindParam(':user_id', $user_id);
         $stmt->execute();
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $conges;
+        if ($conges) {
+            return Database::encode_utf8($conges);
+        } else {
+            return [];
+        }
     }
     public static function getDemandesRefus($user_id, $year)
     {
@@ -56,7 +65,11 @@ class Conge
         $stmt->bindParam(':user_id', $user_id);
         $stmt->execute();
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $conges;
+        if ($conges) {
+            return Database::encode_utf8($conges);
+        } else {
+            return [];
+        }
     }
     public static function getDemandeConge($conge_id)
     {
@@ -71,7 +84,11 @@ class Conge
         $stmt->bindParam(':conge_id', $conge_id);
         $stmt->execute();
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $conges;
+        if ($conges) {
+            return Database::encode_utf8($conges);
+        } else {
+            return [];
+        }
     }
     public static function acceptConge($Conge_id, $IDPersonnel, $IDAgence)
     {
@@ -111,7 +128,11 @@ class Conge
         $stmt->bindParam(':year', $year);
         $stmt->execute([$IDPersonnel, $year]);
         $conges = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $conges;
+        if ($conges) {
+            return Database::encode_utf8($conges);
+        } else {
+            return [];
+        }
     }
     public static function getDaysAvailable($IDPersonnel, $year)
     {

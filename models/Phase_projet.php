@@ -6,37 +6,73 @@ class Phase_projet
     {
         try {
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT
-            Phase_projet.*,
-            Phase.libelle AS PhaseLibelle,
-            Projet.abr_projet,
-            Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Phase_projet.IDPersonnel
-            Type_beton.Lib_type_beton AS TypeBetonLibelle,
-            materiaux.Lib_materiaux AS MateriauxLibelle,
-            Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Phase_projet.saisiePar
-            Client.abr_client,Client.IDClient,
-            PV.image_path AS PVPath
-            FROM
-                Phase_projet
-            INNER JOIN
-                Phase ON Phase_projet.IDPhase = Phase.IDPhase
-            INNER JOIN
-                Projet ON Phase_projet.IDProjet = Projet.IDProjet
-            INNER JOIN
-                Personnel AS Personnel1 ON Phase_projet.IDPersonnel = Personnel1.IDPersonnel
-            LEFT JOIN
-                Type_beton ON Phase_projet.IDType_beton = Type_beton.IDType_beton
-            LEFT JOIN
-                Materiaux ON Phase_projet.IDMateriaux = Materiaux.IDMateriaux
-            INNER JOIN
-                Personnel AS Personnel2 ON Phase_projet.saisiePar = Personnel2.IDPersonnel
-            INNER JOIN
-                Client ON Projet.IDClient = Client.IDClient
-            LEFT JOIN
-                PV ON Phase_projet.intervention_id = PV.intervention_id
-            WHERE
-                Personnel1.IDAgence=$IDAgence AND
-                Phase_projet.saisiele BETWEEN " . $fromDate . " AND " . $toDate);
+            if ($IDAgence == 4) {
+                $stmt = $db->prepare("SELECT
+                Phase_projet.*,
+                Phase.libelle AS PhaseLibelle,
+                Projet.abr_projet,
+                Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Phase_projet.IDPersonnel
+                Type_beton.Lib_type_beton AS TypeBetonLibelle,
+                materiaux.Lib_materiaux AS MateriauxLibelle,
+                Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Phase_projet.saisiePar
+                Client.abr_client,Client.IDClient,
+                PV.image_path AS PVPath
+                FROM
+                    Phase_projet
+                INNER JOIN
+                    Phase ON Phase_projet.IDPhase = Phase.IDPhase
+                INNER JOIN
+                    Projet ON Phase_projet.IDProjet = Projet.IDProjet
+                INNER JOIN
+                    Personnel AS Personnel1 ON Phase_projet.IDPersonnel = Personnel1.IDPersonnel
+                LEFT JOIN
+                    Type_beton ON Phase_projet.IDType_beton = Type_beton.IDType_beton
+                LEFT JOIN
+                    Materiaux ON Phase_projet.IDMateriaux = Materiaux.IDMateriaux
+                INNER JOIN
+                    Personnel AS Personnel2 ON Phase_projet.saisiePar = Personnel2.IDPersonnel
+                INNER JOIN
+                    Client ON Projet.IDClient = Client.IDClient
+                LEFT JOIN
+                    PV ON Phase_projet.intervention_id = PV.intervention_id
+                WHERE
+                    Phase_projet.saisiele BETWEEN " . $fromDate . " AND " . $toDate .
+                    "ORDER BY Phase_projet.saisiele DESC");
+            } else {
+                $stmt = $db->prepare("SELECT
+                Phase_projet.*,
+                Phase.libelle AS PhaseLibelle,
+                Projet.abr_projet,
+                Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Phase_projet.IDPersonnel
+                Type_beton.Lib_type_beton AS TypeBetonLibelle,
+                materiaux.Lib_materiaux AS MateriauxLibelle,
+                Personnel2.Nom_personnel AS SaisieParNom,          -- Nom_personnel related to Phase_projet.saisiePar
+                Client.abr_client,Client.IDClient,
+                PV.image_path AS PVPath
+                FROM
+                    Phase_projet
+                INNER JOIN
+                    Phase ON Phase_projet.IDPhase = Phase.IDPhase
+                INNER JOIN
+                    Projet ON Phase_projet.IDProjet = Projet.IDProjet
+                INNER JOIN
+                    Personnel AS Personnel1 ON Phase_projet.IDPersonnel = Personnel1.IDPersonnel
+                LEFT JOIN
+                    Type_beton ON Phase_projet.IDType_beton = Type_beton.IDType_beton
+                LEFT JOIN
+                    Materiaux ON Phase_projet.IDMateriaux = Materiaux.IDMateriaux
+                INNER JOIN
+                    Personnel AS Personnel2 ON Phase_projet.saisiePar = Personnel2.IDPersonnel
+                INNER JOIN
+                    Client ON Projet.IDClient = Client.IDClient
+                LEFT JOIN
+                    PV ON Phase_projet.intervention_id = PV.intervention_id
+                WHERE
+                    Personnel1.IDAgence=$IDAgence AND
+                    Phase_projet.saisiele BETWEEN " . $fromDate . " AND " . $toDate .
+                    "ORDER BY Phase_projet.saisiele DESC");
+            }
+
             $stmt->execute();
             $receptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $receptions = Database::encode_utf8($receptions);
@@ -50,7 +86,41 @@ class Phase_projet
     {
         try {
             $db = Database::getInstance()->getConnection();
-            $stmt = $db->prepare("SELECT
+            if ($IDAgence == 4) {
+                $stmt = $db->prepare("SELECT
+                Pre_reception.*,
+                Phase.libelle AS PhaseLibelle,
+                Client.abr_client,Client.IDClient,
+                Projet.abr_projet ,
+                Personnel1.Nom_personnel AS PersonnelNom,        -- Nom_personnel related to Pre_reception.IDPersonnel
+                Type_beton.Lib_type_beton AS TypeBetonLibelle,
+                materiaux.Lib_materiaux AS MateriauxLibelle,
+                Personnel2.Nom_personnel AS SaisieParNom,         -- Nom_personnel related to Pre_reception.saisiePar
+                PV.image_path AS PVPath
+                FROM
+                    Pre_reception
+                INNER JOIN
+                    Phase ON Pre_reception.IDPhase = Phase.IDPhase
+                INNER JOIN
+                    Projet ON Pre_reception.IDProjet = Projet.IDProjet
+                INNER JOIN
+                    Client ON Projet.IDClient = Client.IDClient
+                INNER JOIN
+                    Personnel AS Personnel1 ON Pre_reception.IDPersonnel = Personnel1.IDPersonnel
+                LEFT JOIN
+                    Type_beton ON Pre_reception.IDType_beton = Type_beton.IDType_beton
+                LEFT JOIN
+                    Materiaux ON Pre_reception.IDMateriaux = Materiaux.IDMateriaux
+                INNER JOIN
+                    Personnel AS Personnel2 ON Pre_reception.saisiePar = Personnel2.IDPersonnel
+                LEFT JOIN
+                    PV ON Pre_reception.IDPre_reception = PV.IDPre_reception
+                WHERE
+                Pre_reception.etat_confirmation=0 
+                AND Pre_reception.saisiele BETWEEN " . $fromDate . " AND " . $toDate . "
+                ORDER BY Pre_reception.saisiele DESC");
+            } else {
+                $stmt = $db->prepare("SELECT
             Pre_reception.*,
             Phase.libelle AS PhaseLibelle,
             Client.abr_client,Client.IDClient,
@@ -81,7 +151,9 @@ class Phase_projet
             WHERE
             Pre_reception.etat_confirmation=0 
             AND Personnel1.IDAgence=$IDAgence
-            AND Pre_reception.saisiele BETWEEN " . $fromDate . " AND " . $toDate);
+            AND Pre_reception.saisiele BETWEEN " . $fromDate . " AND " . $toDate .
+                    "ORDER BY Pre_reception.saisiele DESC");
+            }
 
             $stmt->execute();
             $receptions = $stmt->fetchAll(PDO::FETCH_ASSOC);

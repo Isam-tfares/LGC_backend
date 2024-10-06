@@ -60,12 +60,12 @@ class TechnicienInterfaceController
         http_response_code(200);
         echo json_encode($intervention);
     }
-    public static function addInterventionInterface()
+    public static function addInterventionInterface($IDAgence)
     {
         $clients = Client::getAll();
         $projects = Projet::getAll();
         $phases = Phase::get();
-        $techniciens = User::getTechniciens();
+        $techniciens = User::getTechniciens($IDAgence);
         $data = [
             "clients" => $clients,
             "phases" => $phases,

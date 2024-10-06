@@ -201,7 +201,7 @@ class HomeController
                     TechnicienInterfaceController::InterventionDetails($user_id);
                     break;
                 case "addInterventionInterface":
-                    TechnicienInterfaceController::addInterventionInterface();
+                    TechnicienInterfaceController::addInterventionInterface($IDAgence);
                     break;
                 case "addInterventionAction":
                     TechnicienInterfaceController::addInterventionAction($user_id);
